@@ -5,19 +5,19 @@ import pandas as pd
 
 st.title("🌱 정원 설계 비교 계산기")
 
-st.markdown("같은 변수를 적용했을 때, 스파이럴·테라스·마운드·키홀 설계의 결과를 비교합니다.")
+st.markdown("같은 변수를 적용했을 때, 스파이럴·계단식·언덕·키홀 설계의 결과를 비교합니다.")
 
 # --- 공통 변수 입력 ---
 R = st.number_input("전체 반지름 R (m)", min_value=0.5, max_value=5.0, value=1.5, step=0.1)
 H = st.number_input("최대 높이 H (m)", min_value=0.2, max_value=3.0, value=0.8, step=0.1)
-alpha = st.slider("흙 대체율 α (0~1)", min_value=0.0, max_value=1.0, value=0.3, step=0.05)
-brick_len = st.number_input("벽돌 길이 (m)", min_value=0.1, max_value=1.0, value=0.2, step=0.05)
+theta_max = st.number_input("스파이럴 회전각 θmax (라디안)", min_value=3.14, max_value=12.56, value=6.28, step=0.1)
+n = st.number_input("계단식 층 수 n", min_value=1, max_value=10, value=3, step=1)
+r_top = st.number_input("언덕 상단 반지름 r (m)", min_value=0.0, max_value=R, value=0.5, step=0.1)
+theta_key = st.slider("키홀 통로 각도 θ (라디안)", min_value=0.1, max_value=3.14, value=1.57, step=0.1)
 
 # 추가 변수
-theta_max = st.number_input("스파이럴 회전각 θmax (라디안)", min_value=3.14, max_value=12.56, value=6.28, step=0.1)
-n = st.number_input("테라스 층 수 n", min_value=1, max_value=10, value=3, step=1)
-r_top = st.number_input("마운드 상단 반지름 r (m)", min_value=0.0, max_value=R, value=0.5, step=0.1)
-theta_key = st.slider("키홀 통로 각도 θ (라디안)", min_value=0.1, max_value=3.14, value=1.57, step=0.1)
+alpha = st.slider("흙 대체율 α (0~1)", min_value=0.0, max_value=1.0, value=0.3, step=0.05)
+brick_len = st.number_input("벽돌 길이 (m)", min_value=0.1, max_value=1.0, value=0.2, step=0.05)
 
 # --- 결과 저장용 ---
 results = []
@@ -34,7 +34,7 @@ volume = 2*np.pi*H*R**2/3
 soil = volume * (1 - alpha)
 results.append(["스파이럴", length, bricks, area, volume, soil])
 
-# 2) 테라스
+# 2) 계단식
 h_each = H/n
 radii = np.linspace(0, R, n+1)
 area, volume = 0, 0
@@ -45,15 +45,15 @@ for i in range(1, len(radii)):
 length = 2*np.pi*R
 bricks = length / brick_len
 soil = volume * (1 - alpha)
-results.append(["테라스", length, bricks, area, volume, soil])
+results.append(["계단식", length, bricks, area, volume, soil])
 
-# 3) 마운드
+# 3) 언덕
 length = 2*np.pi*R
 bricks = length / brick_len
 area = np.pi * R**2
 volume = (np.pi * H / 3) * (R**2 + R*r_top + r_top**2)
 soil = volume * (1 - alpha)
-results.append(["마운드", length, bricks, area, volume, soil])
+results.append(["언덕", length, bricks, area, volume, soil])
 
 # 4) 키홀
 length = 2*np.pi*R
