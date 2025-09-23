@@ -8,9 +8,30 @@ st.title("🌀 극좌표 시각화")
 geogebra_app_url = "https://www.geogebra.org/m/gswxgwua"  
 
 st.components.v1.html(
-    f'<iframe src="{geogebra_app_url}" width="800" height="600" style="border:1px solid #ccc;"></iframe>',
+    f'<iframe src="{geogebra_app_url}" width="1060" height="600" style="border:1px solid #ccc;"></iframe>',
     height=620,
     scrolling=True
+)
+
+st.set_page_config(page_title="극좌표 GeoGebra 시각화👁️", layout="centered")
+
+# 첫 번째 앱 ( 극좌표 길이)
+st.subheader("📍 극좌표 길이 (r, θ)")
+st.components.v1.html(
+    '''
+    <iframe src="https://www.geogebra.org/classic/tyeyhrce"
+            width="1060" height="600" style="border:1px solid #ccc;"></iframe>
+    ''',
+    height=620
+)
+# 두 번째 앱 (극좌표 넓이)
+st.subheader("📐 극좌표 넓이")
+st.components.v1.html(
+    '''
+    <iframe src="https://www.geogebra.org/classic/v4vduefc"
+            width="1060" height="600" style="border:1px solid #ccc;"></iframe>
+    ''',
+    height=620
 )
 
 st.markdown("---")
