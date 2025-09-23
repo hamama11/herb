@@ -3,7 +3,7 @@ import streamlit as st
 st.set_page_config(page_title="Math Adventure!", layout="centered")
 
 # 제목
-st.title("🎒 지혜를 갈구하는 탐구자들이여, 그대들의 발걸음을 진심으로 환영하노라.")
+st.title("🎒 지혜를 갈구하는 탐구자들이여, \\그대들의 발걸음을 진심으로 환영하노라.")
 
 # 귀여운 이미지 삽입 (예: 공개 라이선스 일러스트)
 st.image("assets/derpy_tiger.png",use_column_width=True)
