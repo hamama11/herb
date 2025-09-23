@@ -1,6 +1,10 @@
 import streamlit as st
 import numpy as np
+
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 
 st.title("🎨 극좌표 활동지: 곡선의 길이와 넓이")
 
