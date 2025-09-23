@@ -6,11 +6,8 @@ st.set_page_config(page_title="Math Adventure!", layout="centered")
 st.title("🎒 지혜를 갈구하는 탐구자들이여, 그대들의 발걸음을 진심으로 환영하노라.")
 
 # 귀여운 이미지 삽입 (예: 공개 라이선스 일러스트)
-st.image(
-    "084b0e02-7a3b-4f15-86f7-98a65c0f38df.png",
-    caption="🐾🧠",
-    use_column_width=True
-)
+st.image("assets/derpy_tiger.png",  caption="🐾🧠",use_column_width=True)
+
 
 # 소개 문구
 st.markdown("""
