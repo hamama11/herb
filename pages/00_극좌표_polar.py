@@ -22,7 +22,8 @@ st.components.v1.html(
     <iframe src="https://www.geogebra.org/classic/tyeyhrce"
             width="100%" height="600" style="border:1px solid #ccc;"></iframe>
     ''',
-    height=620
+    height=620,
+    scrolling=True
 )
 # 두 번째 앱 (극좌표 넓이)
 st.subheader("📐 극좌표 넓이")
@@ -31,7 +32,8 @@ st.components.v1.html(
     <iframe src="https://www.geogebra.org/classic/v4vduefc"
             width="100%" height="600" style="border:1px solid #ccc;"></iframe>
     ''',
-    height=620
+    height=620,
+    scrolling=True
 )
 
 st.markdown("---")
