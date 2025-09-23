@@ -1,0 +1,10 @@
+import streamlit as st
+
+#🌐 외부 사이트 임베드"
+
+st.components.v1.html(
+    """
+    <iframe src="https://gamma.app/embed/d1vltdqkxnw6h04" style="width:100%; height: 450px" allow="fullscreen" title="극좌표와 아르키메데스 나선"></iframe>
+    """,
+    height=620
+)
