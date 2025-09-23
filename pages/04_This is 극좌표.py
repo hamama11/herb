@@ -2,7 +2,7 @@ import streamlit as st
 
 st.components.v1.html(
     '''
-    <iframe src="https://gamma.app/embed/rm93extpoygc6dn" style="width: 700px; max-width: 100%; height: 450px" allow="fullscreen" title="극좌표 곡선의 길이와 넓이 공식 원리"></iframe>
+    <iframe src="https://docs.google.com/document/d/1b9maCsoLhBu4swgufvf3QH-GptNbFN6KWa1Ojw_S_kg/edit?usp=sharing"></iframe>
     ''',
     height=620,
     scrolling=True
