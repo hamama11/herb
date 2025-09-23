@@ -1,9 +1,0 @@
-fonts-nanum
-
-import matplotlib
-matplotlib.use("Agg")  # 헤드리스 환경용 백엔드
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
-
-plt.rcParams["font.family"] = "NanumGothic"  # 시스템에 설치된 나눔 폰트 사용
-plt.rcParams["axes.unicode_minus"] = False   # 음수 기호 깨짐 방지
