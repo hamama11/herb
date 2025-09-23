@@ -2,7 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="GeoGebra ")
 
-st.subheader("🌀 극좌표 란?(r, θ)")
+st.title("🌀 극좌표 란?(r, θ)")
 
 st.components.v1.html(
     f'<iframe src="https://www.geogebra.org/classic/gswxgwua" width="100%" height="600" style="border:1px solid #ccc;"></iframe>',
