@@ -4,11 +4,8 @@ st.set_page_config(page_title="GeoGebra ")
 
 st.title("🌀 극좌표 시각화")
 
-# GeoGebra에서 생성한 공개 그래프 링크의 iframe 임베드
-geogebra_app_url = "https://www.geogebra.org/m/gswxgwua"  
-
 st.components.v1.html(
-    f'<iframe src="{geogebra_app_url}" width="100%" height="600" style="border:1px solid #ccc;"></iframe>',
+    f'<iframe src="https://www.geogebra.org/classic/gswxgwua" width="100%" height="600" style="border:1px solid #ccc;"></iframe>',
     height=620,
     scrolling=True
 )
