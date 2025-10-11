@@ -1,3 +1,16 @@
+import streamlit as st
+import streamlit.components.v1 as components
+import os
+
+# 파일 경로 지정 (같은 디렉토리라면)
+file_path = os.path.join("pages", "03_내분점.html")
+
+# HTML 파일 읽기
+with open(file_path, "r", encoding="utf-8") as f:
+    html_code = f.read()
+
+# 임베딩
+components.html(html_code, height=600, scrolling=True)
 
 <html lang="ko">
 <head>
