@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import minimize, differential_evolution
 import plotly.graph_objects as go
 
-st.title("🧮 다변수 최적화 페이지")
+st.title("🧮 다변수 최적화")
 
 # 함수 선택
 func_option = st.selectbox("목적 함수 선택", ["(x-2)^2 + (y-3)^2", "sin(x)*cos(y) + x + y"])
