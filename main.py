@@ -1,21 +1,5 @@
 import streamlit as st
-from pages import greenhouse  # 온실.py 파일을 greenhouse.py로 이름 변경했다고 가정
-
-def main():
-    st.sidebar.title("메뉴 선택")
-
-    # 그룹 선택 (현재는 그룹 하나)
-    group = st.sidebar.selectbox("그룹 선택", ["01~02 그룹"])
-
-    if group == "01~02 그룹":
-        # 페이지 선택 (현재는 온실 하나만)
-        page = st.sidebar.radio("페이지 선택", ["온실"])
-        if page == "온실":
-            greenhouse.show()  # 온실.py 안의 show() 함수 실행
-
-if __name__ == "__main__":
-    main()
-
+f
 
 # 제목
 st.title("""🎒 지혜를 갈구하는 탐구자들이여,
