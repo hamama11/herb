@@ -174,8 +174,8 @@ with right:
 # ------------------------------
 # Modeling
 # ------------------------------
-st.subheader("🧮 간단 모형 적합")
-use_quadratic = st.checkbox("이차모형도 함께 적합 (polyfit deg=2)", value=False)
+st.subheader("🧮 최적화 모형 찾기 ")
+use_quadratic = st.checkbox("비선형 같이 비교하기 (deg=2)", value=False)
 
 results = []
 for xcol, label in [("평균온도","온도"), ("습도","습도"), ("광량","광량")]:
@@ -186,17 +186,17 @@ for xcol, label in [("평균온도","온도"), ("습도","습도"), ("광량","�
             b1, b0 = np.polyfit(xd[xcol], xd["잎길이"], 1)  # slope, intercept
             r = xd[xcol].corr(xd["잎길이"])  # 피어슨 상관
             row = {
-                "변수": label,
-                "선형 기울기(k)": round(float(b1), 4),
-                "절편(c)": round(float(b0), 4),
-                "상관계수 r": round(float(r), 4)
-            }
++                 "변수": label,
++                 "기울기(k) (얼마나 빨리 늘어나는가)": round(float(b1), 4),
++                 "y절편(c) (시작 값)": round(float(b0), 4),
++                 "함께 변하는 정도 r(상관)": round(float(r), 4)
++             }
             if use_quadratic and len(xd) >= 3:
                 a2, a1, a0 = np.polyfit(xd[xcol], xd["잎길이"], 2)
                 row.update({
-                    "이차 a2": round(float(a2), 6),
-                    "이차 a1": round(float(a1), 5),
-                    "이차 a0": round(float(a0), 4)
+                    "이차항계수 a2": round(float(a2), 6),
+                    "일차항계수 a1": round(float(a1), 5),
+                    "상수항 a0": round(float(a0), 4)
                 })
             results.append(row)
 
@@ -208,7 +208,7 @@ else:
 # ------------------------------
 # Prediction sandbox
 # ------------------------------
-st.subheader("🔮 성장 예측 샌드박스 (선형모형)")
+st.subheader("🔮 성장량 예측하기(선형모형, 직선식)")
 colA, colB, colC, colD = st.columns(4)
 with colA:
     T_in = st.number_input("예측용 온도(℃)", value=float(vdf["평균온도"].median()) if "평균온도" in vdf else 24.0)
@@ -218,7 +218,7 @@ with colC:
     L_in = st.number_input("예측용 광량(lx)", value=float(vdf["광량"].median()) if "광량" in vdf else 20000.0)
 with colD:
     base = float(vdf["잎길이"].iloc[0]) if "잎길이" in vdf and not vdf.empty else 4.0
-    base_len = st.number_input("기준 잎길이(cm)", value=base)
+    base_len = st.number_input("현재 잎길이(cm)", value=base)
 
 # 선형계수 딕셔너리 구성
 coef = {"평균온도": (0.0, 0.0), "습도": (0.0, 0.0), "광량": (0.0, 0.0)}
@@ -243,9 +243,9 @@ for x, xval in zip(["평균온도","습도","광량"], [T_in, H_in, L_in]):
 
 if w_sum > 0:
     blended = num / w_sum
-    st.success(f"예상 잎길이: **{blended:.2f} cm** (간단 가중합 모델)")
+    st.success(f"예상 잎길이: **{blended:.2f} cm** (by 예측 모델)")
 else:
-    st.info("아직 적합된 선형모형이 없어 예측을 계산하지 않았습니다. 위의 모형 표를 확인하세요.")
+     st.info("아직 직선식이 만들어지지 않아 예측을 하지 않았어요. 위의 표를 먼저 만들어 주세요.")
 
 # ------------------------------
 # Notes & Tips
