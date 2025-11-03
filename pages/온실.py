@@ -1,11 +1,14 @@
-import streamlit as st
-
-def show():
-    st.title("🌿 온실 관리 페이지")
-    st.write("여기는 온실 상태를 관리하는 페이지입니다.")
-
-
 # -*- coding: utf-8 -*-
+
++ import io
++ import numpy as np
++ import pandas as pd
++ import altair as alt
++ import streamlit as st
++
++ def show():
++     st.title("🌿 온실 관리 페이지")
++     st.write("여기는 온실 상태를 관리하는 페이지입니다.")
 """
 🌱 Greenhouse Math: Streamlit Web App
 - Upload `greenhouse.csv` or use the sample template
@@ -16,12 +19,6 @@ def show():
 Expected columns (Korean headers by default):
 - 날짜, 평균온도, 습도, 광량, 잎길이, 식물
 """
-
-import io
-import numpy as np
-import pandas as pd
-import altair as alt
-import streamlit as st
 
 st.set_page_config(page_title="🌿 온실 속 수학자", layout="wide")
 st.title("🌿 온실 속 수학자: 데이터·수학·코딩")
