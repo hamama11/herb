@@ -1,5 +1,9 @@
 import streamlit as st
 
+def show():
+    st.title("🌿 온실 관리 페이지")
+    st.write("여기는 온실 상태를 관리하는 페이지입니다.")
+
 st.set_page_config(page_title="GeoGebra ")
 
 st.title("🌀 극좌표 란?(r, θ)")
