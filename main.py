@@ -1,5 +1,25 @@
 import streamlit as st
 
+from pages.page1 import 00_온실
+
+
+def main():
+    st.sidebar.title("📘 페이지 선택")
+
+    page = st.sidebar.radio(
+        "이동할 페이지를 선택하세요:",
+        ("홈", "온실 관리", "나선 Spiral", "내분점", "나 선", "수치 조정")
+    )
+
+    if page == "홈":
+        st.title("🏠 홈")
+        st.write("환영합니다! 왼쪽에서 페이지를 선택하세요.")
+    elif page == "온실 관리":
+        00_온실.show()
+
+if __name__ == "__main__":
+    main()
+
 st.set_page_config(page_title="Math Adventure!", layout="centered")
 
 # 제목
