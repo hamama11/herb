@@ -1,6 +1,6 @@
 import streamlit as st
 
-from pages.page1 import 00_온실
+from pages.page1 import 온실
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
         st.title("🏠 홈")
         st.write("환영합니다! 왼쪽에서 페이지를 선택하세요.")
     elif page == "온실 관리":
-        00_온실.show()
+        온실.show()
 
 if __name__ == "__main__":
     main()
