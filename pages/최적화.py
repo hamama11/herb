@@ -10,11 +10,11 @@
 의존성: streamlit, numpy, pandas, altair
 실행: streamlit run app_linear_taylor_opt.py
 """
-
 import numpy as np
 import pandas as pd
 import altair as alt
 import streamlit as st
+import math
 
 st.set_page_config(page_title="📐 Taylor & Newton Explorer", layout="wide")
 st.title("📐 테일러 근사와 뉴턴 방법 탐구")
@@ -77,13 +77,13 @@ def derivative_n(f, x, n=1, h=1e-4):
 
 def taylor_poly_values(f, a, x_arr, n, h=1e-4):
     """
-    테일러 n차 다항식 T_n(x)를 점 x_arr에서 평가한 값 반환
+    테일러 n차 다항식 T_n(x)를 점 x_arr에서 평가한 값
     T_n(x) = Σ_{k=0}^n (f^{(k)}(a)/k!) (x-a)^k
     """
     vals = np.zeros_like(x_arr, dtype=float)
     for k in range(n + 1):
         deriv = derivative_n(f, a, n=k, h=h)
-        vals += deriv * (x_arr - a) ** k / np.math.factorial(k)
+        vals += deriv * (x_arr - a) ** k / math.factorial(k)
     return vals
 
 
