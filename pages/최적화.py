@@ -12,7 +12,7 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 
-st.set_page_config(page_title="📐 Linear vs Taylor vs Optimization", layout="wide")
+st.set_page_config(page_title="📐 접선Linear vs 테일러Taylor vs 최적화Optimization", layout="wide")
 st.title("📐 Linear Approx vs Taylor 1st vs Optimization")
 
 # ------------------------------
