@@ -14,15 +14,15 @@ def show():
     # Google Colab 노트북 공유 URL
     COLAB_URL = "https://colab.research.google.com/drive/1XnXU-AoqZ1QKqOlb_B5KjRMyHYW7AGko?usp=sharing"
 
-    # 버튼 클릭 시 새 탭에서 Colab 열기
-    st.markdown(f"[🚀 Colab 열기]({COLAB_URL})", unsafe_allow_html=True)
+    st.link_button("🚀 Colab 열기", COLAB_URL)
 
     st.markdown("---")
     st.caption(
         "※ 브라우저 팝업 차단이 켜져 있으면 새 탭이 안 뜰 수 있어요. "
         "이 경우 주소를 복사해서 직접 붙여 넣어도 됩니다."
+        ""https://colab.research.google.com/drive/1XnXU-AoqZ1QKqOlb_B5KjRMyHYW7AGko?usp=sharing""
+        
     )
 
-# Streamlit 멀티페이지 구조에서 바로 실행되는 경우도 대비
 if __name__ == "__main__":
     show()
