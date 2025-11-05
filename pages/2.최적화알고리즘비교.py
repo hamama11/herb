@@ -20,7 +20,7 @@ show_newton = st.checkbox("뉴턴 방법 표시", True)
 # -----------------
 # 1D 최적화
 # -----------------
-st.subheader("1D 함수 최적화")
+st.subheader(" 함수 최적화")
 st.markdown(r"""
 함수:  
 $$f(x) = x^4 - 3x^3 + 2$$
@@ -77,27 +77,17 @@ fig1d.update_layout(
     xaxis_title='x',
     yaxis_title='f(x)',
     width=800, height=400,
-    title="1D 최적화 비교"
+    
 )
 st.plotly_chart(fig1d, use_container_width=True)
 
 # -----------------
 # 2D 최적화 (Plotly)
 # -----------------
-st.subheader("2D 함수 최적화")
+st.subheader("이변수 함수 최적화")
 st.markdown(r"""
 함수:  
 $$f(x,y) = x^4 - 3x^3 + y^4 - 3y^3 + 2$$
-
-**수식:**  
-- <span style='color:red'>경사하강법:</span> 
-$$x_{t+1} = x_t - \eta \frac{\partial f}{\partial x}, \quad
-y_{t+1} = y_t - \eta \frac{\partial f}{\partial y}$$
-
-- <span style='color:blue'>뉴턴 방법:</span>
-$$x_{t+1} = x_t - \frac{\partial f / \partial x}{\partial^2 f / \partial x^2}, \quad
-y_{t+1} = y_t - \frac{\partial f / \partial y}{\partial^2 f / \partial y^2}$$
-""", unsafe_allow_html=True)
 
 def run_2d(x0, y0, method):
     x, y = x0, y0
@@ -152,6 +142,5 @@ fig2d.update_layout(
         xaxis_title='X', yaxis_title='Y', zaxis_title='f(X,Y)'
     ),
     width=900, height=700,
-    title="2D 최적화 비교"
 )
 st.plotly_chart(fig2d, use_container_width=True)
