@@ -23,7 +23,7 @@ show_newton = st.checkbox("뉴턴 방법 표시", True)
 # -----------------
 # 1D 최적화
 # -----------------
-st.subheader("1D 함수 최적화")
+st.subheader("함수 최적화")
 st.markdown(r"""
 함수:  
 $$f(x) = x^4 - 3x^3 + 2$$
@@ -86,7 +86,7 @@ st.plotly_chart(fig1d, use_container_width=True)
 # -----------------
 # 2D 최적화
 # -----------------
-st.subheader("2D 함수 최적화")
+st.subheader("다변수 함수 최적화")
 st.markdown(r"""
 함수:  
 $$f(x,y) = x^4 - 3x^3 + y^4 - 3y^3 + 2$$
