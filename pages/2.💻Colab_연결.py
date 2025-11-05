@@ -14,14 +14,14 @@ def show():
     # Google Colab 노트북 공유 URL
     COLAB_URL = "https://colab.research.google.com/drive/1XnXU-AoqZ1QKqOlb_B5KjRMyHYW7AGko?usp=sharing"
 
-    st.link_button("🚀 Colab 열기", COLAB_URL)
+    # st.button 대신 마크다운 링크 사용
+    st.markdown(f"[🚀 Colab 열기]({COLAB_URL})", unsafe_allow_html=True)
 
     st.markdown("---")
     st.caption(
         "※ 브라우저 팝업 차단이 켜져 있으면 새 탭이 안 뜰 수 있어요. "
-        "이 경우 주소를 복사해서 직접 붙여 넣어도 됩니다."
-        ""https://colab.research.google.com/drive/1XnXU-AoqZ1QKqOlb_B5KjRMyHYW7AGko?usp=sharing""
-        
+        "이 경우 아래 주소를 복사해서 직접 붙여 넣어도 됩니다.\n"
+        "https://colab.research.google.com/drive/1XnXU-AoqZ1QKqOlb_B5KjRMyHYW7AGko?usp=sharing"
     )
 
 if __name__ == "__main__":
