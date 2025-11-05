@@ -1,42 +1,105 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
-from utils import f2d, grad2d, hess2d
+from utils import f1d, grad1d, hess1d, f2d, grad2d, hess2d
 
-st.title("최적화 알고리즘 비교: 경사하강법 vs 뉴턴 (3D 애니메이션)")
-st.markdown("""
-### 2D 함수 최적화
-함수:  
-$$f(x,y) = x^4 - 3x^3 + y^4 - 3y^3 + 2$$  
-
-**최적화 방법 수식:**  
-- <span style='color:red'>**경사하강법 (Gradient Descent)**</span>  
-$$
-x_{t+1} = x_t - \eta \frac{\partial f}{\partial x}, \quad
-y_{t+1} = y_t - \eta \frac{\partial f}{\partial y}
-$$
-- <span style='color:blue'>**뉴턴 방법 (Newton's Method)**</span>  
-$$
-x_{t+1} = x_t - \frac{\partial f / \partial x}{\partial^2 f / \partial x^2}, \quad
-y_{t+1} = y_t - \frac{\partial f / \partial y}{\partial^2 f / \partial y^2}
-$$
-""", unsafe_allow_html=True)
+st.title("최적화 알고리즘 비교: 경사하강법 vs 뉴턴")
 
 # -----------------
 # 사용자 입력
 # -----------------
-iterations = st.slider("반복 횟수", 10, 200, 50)
+iterations = st.slider("반복 횟수", 10, 500, 50)
 learning_rate = st.slider("학습률 (경사하강법)", 0.01, 1.0, 0.1)
-x0 = st.number_input("시작점 x0", value=3.0)
-y0 = st.number_input("시작점 y0", value=3.0)
+x0_1d = st.number_input("1D 시작점 x0", value=3.0)
+x0_2d = st.number_input("2D 시작점 x0", value=3.0)
+y0_2d = st.number_input("2D 시작점 y0", value=3.0)
 
-show_gd = st.checkbox("경사하강법", True)
-show_newton = st.checkbox("뉴턴 방법", True)
+show_gd = st.checkbox("경사하강법 표시", True)
+show_newton = st.checkbox("뉴턴 방법 표시", True)
 
 # -----------------
-# 최적화 계산
+# 1D 최적화
 # -----------------
-def run_optimization(x0, y0, method):
+st.subheader("1D 함수 최적화")
+st.markdown(r"""
+함수:  
+$$f(x) = x^4 - 3x^3 + 2$$
+
+**수식:**  
+- <span style='color:red'>경사하강법:</span> $$x_{t+1} = x_t - \eta f'(x_t)$$  
+- <span style='color:blue'>뉴턴 방법:</span> $$x_{t+1} = x_t - \frac{f'(x_t)}{f''(x_t)}$$
+""", unsafe_allow_html=True)
+
+def run_1d(x0, method):
+    x = x0
+    history = [x]
+    for _ in range(iterations):
+        grad = grad1d(x)
+        if method == "Gradient Descent":
+            x -= learning_rate * grad
+        elif method == "Newton":
+            hess = hess1d(x)
+            x = x - grad / hess if hess != 0 else x
+        history.append(x)
+    return history
+
+history_gd_1d = run_1d(x0_1d, "Gradient Descent") if show_gd else []
+history_newton_1d = run_1d(x0_1d, "Newton") if show_newton else []
+
+# Plotly 1D
+X = np.linspace(-1, 3, 400)
+Y = f1d(X)
+
+fig1d = go.Figure()
+fig1d.add_trace(go.Scatter(x=X, y=Y, mode='lines', name='f(x)'))
+
+if show_gd and history_gd_1d:
+    fig1d.add_trace(go.Scatter(
+        x=history_gd_1d,
+        y=f1d(np.array(history_gd_1d)),
+        mode='lines+markers',
+        line=dict(color='red', width=3),
+        marker=dict(size=6),
+        name='경사하강법'
+    ))
+
+if show_newton and history_newton_1d:
+    fig1d.add_trace(go.Scatter(
+        x=history_newton_1d,
+        y=f1d(np.array(history_newton_1d)),
+        mode='lines+markers',
+        line=dict(color='blue', width=3),
+        marker=dict(size=6),
+        name='뉴턴 방법'
+    ))
+
+fig1d.update_layout(
+    xaxis_title='x',
+    yaxis_title='f(x)',
+    width=800, height=400,
+    title="1D 최적화 비교"
+)
+st.plotly_chart(fig1d, use_container_width=True)
+
+# -----------------
+# 2D 최적화 (Plotly)
+# -----------------
+st.subheader("2D 함수 최적화")
+st.markdown(r"""
+함수:  
+$$f(x,y) = x^4 - 3x^3 + y^4 - 3y^3 + 2$$
+
+**수식:**  
+- <span style='color:red'>경사하강법:</span> 
+$$x_{t+1} = x_t - \eta \frac{\partial f}{\partial x}, \quad
+y_{t+1} = y_t - \eta \frac{\partial f}{\partial y}$$
+
+- <span style='color:blue'>뉴턴 방법:</span>
+$$x_{t+1} = x_t - \frac{\partial f / \partial x}{\partial^2 f / \partial x^2}, \quad
+y_{t+1} = y_t - \frac{\partial f / \partial y}{\partial^2 f / \partial y^2}$$
+""", unsafe_allow_html=True)
+
+def run_2d(x0, y0, method):
     x, y = x0, y0
     history = [(x, y)]
     for _ in range(iterations):
@@ -51,55 +114,44 @@ def run_optimization(x0, y0, method):
         history.append((x, y))
     return history
 
-history_gd = run_optimization(x0, y0, "Gradient Descent") if show_gd else []
-history_newton = run_optimization(x0, y0, "Newton") if show_newton else []
+history_gd_2d = run_2d(x0_2d, y0_2d, "Gradient Descent") if show_gd else []
+history_newton_2d = run_2d(x0_2d, y0_2d, "Newton") if show_newton else []
 
-# -----------------
-# 3D 표면 + 애니메이션 느낌
-# -----------------
-X = np.linspace(-1, 3, 100)
-Y = np.linspace(-1, 3, 100)
-X_grid, Y_grid = np.meshgrid(X, Y)
+Xg = np.linspace(-1, 3, 100)
+Yg = np.linspace(-1, 3, 100)
+X_grid, Y_grid = np.meshgrid(Xg, Yg)
 Z = f2d(X_grid, Y_grid)
 
-fig = go.Figure()
+fig2d = go.Figure()
+fig2d.add_trace(go.Surface(x=X_grid, y=Y_grid, z=Z, colorscale='Viridis', opacity=0.7, showscale=False))
 
-# 표면
-fig.add_trace(go.Surface(
-    z=Z, x=X_grid, y=Y_grid, colorscale='Viridis', opacity=0.7, showscale=False
-))
-
-# 경사하강법 경로
-if show_gd and history_gd:
-    hx, hy = zip(*history_gd)
+if show_gd and history_gd_2d:
+    hx, hy = zip(*history_gd_2d)
     hz = f2d(np.array(hx), np.array(hy))
-    fig.add_trace(go.Scatter3d(
+    fig2d.add_trace(go.Scatter3d(
         x=hx, y=hy, z=hz,
         mode='lines+markers',
         line=dict(color='red', width=5),
-        marker=dict(size=4, color='red'),
+        marker=dict(size=4),
         name='경사하강법'
     ))
 
-# 뉴턴 경로
-if show_newton and history_newton:
-    hx, hy = zip(*history_newton)
+if show_newton and history_newton_2d:
+    hx, hy = zip(*history_newton_2d)
     hz = f2d(np.array(hx), np.array(hy))
-    fig.add_trace(go.Scatter3d(
+    fig2d.add_trace(go.Scatter3d(
         x=hx, y=hy, z=hz,
         mode='lines+markers',
         line=dict(color='blue', width=5),
-        marker=dict(size=4, color='blue'),
+        marker=dict(size=4),
         name='뉴턴 방법'
     ))
 
-fig.update_layout(
+fig2d.update_layout(
     scene=dict(
-        xaxis_title='X',
-        yaxis_title='Y',
-        zaxis_title='f(X,Y)'
+        xaxis_title='X', yaxis_title='Y', zaxis_title='f(X,Y)'
     ),
     width=900, height=700,
+    title="2D 최적화 비교"
 )
-
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig2d, use_container_width=True)
