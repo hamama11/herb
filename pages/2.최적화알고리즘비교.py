@@ -122,4 +122,29 @@ fig2d.add_trace(go.Surface(x=X_grid, y=Y_grid, z=Z, colorscale='Viridis', opacit
 if show_gd and history_gd_2d:
     hx, hy = zip(*history_gd_2d)
     hz = f2d(np.array(hx), np.array(hy))
-    fig2d.add_t_
+    fig2d.add_trace(go.Scatter3d(
+        x=hx, y=hy, z=hz,
+        mode='lines+markers',
+        line=dict(color='red', width=5),
+        marker=dict(size=4),
+        name='경사하강법'
+    ))
+
+if show_newton and history_newton_2d:
+    hx, hy = zip(*history_newton_2d)
+    hz = f2d(np.array(hx), np.array(hy))
+    fig2d.add_trace(go.Scatter3d(
+        x=hx, y=hy, z=hz,
+        mode='lines+markers',
+        line=dict(color='blue', width=5),
+        marker=dict(size=4),
+        name='뉴턴 방법'
+    ))
+
+fig2d.update_layout(
+    scene=dict(
+        xaxis_title='X', yaxis_title='Y', zaxis_title='f(X,Y)'
+    ),
+    width=900, height=700,
+)
+st.plotly_chart(fig2d, use_container_width=True)
