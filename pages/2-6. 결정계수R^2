@@ -1,0 +1,203 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import r2_score
+import plotly.express as px
+
+st.set_page_config(page_title="회귀모델과 최적화 탐구", layout="wide")
+
+st.title("📉 회귀모델과 최적화 탐구")
+st.write("""
+데이터에 **가장 잘 맞는 함수**를 찾는 문제를 최적화 관점에서 탐구해보는 앱입니다.  
+- 선형 회귀(직선)와 다항 회귀(곡선)를 비교해보고,  
+- 오차(잔차)와 결정계수 R²를 통해 모델을 평가합니다.  
+- 경사하강법(gradient descent)으로 '기울기 방향으로 조금씩 이동하는' 최적화 과정도 관찰할 수 있습니다.
+""")
+
+st.sidebar.header("1. 데이터 선택하기")
+
+data_option = st.sidebar.radio(
+    "데이터를 선택하세요",
+    ("예시 데이터 사용", "CSV 파일 업로드")
+)
+
+if data_option == "예시 데이터 사용":
+    # 간단한 예시 데이터 생성 (y = 2x + 3 + 잡음)
+    np.random.seed(0)
+    x = np.linspace(0, 10, 30)
+    noise = np.random.normal(0, 2, size=x.shape)
+    y = 2 * x + 3 + noise
+    df = pd.DataFrame({"x": x, "y": y})
+else:
+    uploaded_file = st.sidebar.file_uploader("CSV 파일 업로드 (x, y 열 포함)", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+    else:
+        st.warning("CSV 파일을 업로드해주세요.")
+        st.stop()
+
+st.subheader("데이터 미리보기")
+st.dataframe(df.head())
+
+# 산점도
+fig_scatter = px.scatter(df, x="x", y="y", title="데이터 산점도")
+st.plotly_chart(fig_scatter, use_container_width=True)
+
+st.sidebar.header("2. 모델 설정하기")
+
+model_type = st.sidebar.selectbox(
+    "모델 종류 선택",
+    ["선형 회귀 (1차)", "다항 회귀 (2차 이상)"]
+)
+
+if model_type == "다항 회귀 (2차 이상)":
+    degree = st.sidebar.slider("다항식 차수 선택", min_value=2, max_value=10, value=2, step=1)
+else:
+    degree = 1
+
+st.sidebar.header("3. 학습 방법 선택하기")
+train_method = st.sidebar.radio(
+    "학습(최적화) 방법",
+    ("정규방정식 (scikit-learn 사용)", "경사하강법 직접 구현")
+)
+
+X = df[["x"]].values
+y = df["y"].values
+
+# 다항 특징 변환
+poly = PolynomialFeatures(degree=degree, include_bias=False)
+X_poly = poly.fit_transform(X)
+
+# --------------------------
+# 1) 정규방정식: scikit-learn 사용
+# --------------------------
+if train_method == "정규방정식 (scikit-learn 사용)":
+    model = LinearRegression()
+    model.fit(X_poly, y)
+    y_pred = model.predict(X_poly)
+
+    # 계수 표시
+    st.subheader("📌 학습된 모델 식")
+    coefs = model.coef_
+    intercept = model.intercept_
+
+    # 식 문자열 만들기
+    terms = []
+    for i, c in enumerate(coefs):
+        if degree == 1:
+            term_str = f"{c:.3f}·x"
+        else:
+            term_str = f"{c:.3f}·x^{i+1}"
+        terms.append(term_str)
+    eq_str = " + ".join(terms)
+    st.latex(
+        r"\hat{y} = " + f"{intercept:.3f} + " + eq_str
+    )
+
+    # R^2 계산
+    r2 = r2_score(y, y_pred)
+
+    st.metric("결정계수 R²", f"{r2:.4f}")
+
+    # 잔차
+    residuals = y - y_pred
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### 데이터 vs 예측값")
+        df_pred = df.copy()
+        df_pred["y_pred"] = y_pred
+        fig_fit = px.scatter(df_pred, x="x", y="y", title="실제값과 예측곡선")
+        fig_fit.add_traces(
+            px.line(df_pred, x="x", y="y_pred").data
+        )
+        st.plotly_chart(fig_fit, use_container_width=True)
+
+    with col2:
+        st.markdown("#### 잔차 플롯 (오차 시각화)")
+        fig_res = px.scatter(x=df["x"], y=residuals, labels={"x": "x", "y": "잔차"})
+        fig_res.add_hline(y=0, line_dash="dash")
+        st.plotly_chart(fig_res, use_container_width=True)
+
+    st.write("""
+    - **정규방정식** 방식은 오차 제곱합을 한 번에 최소로 만드는 계수를 수식으로 구한 것입니다.  
+    - 즉, '최적화 과정'이 코드 안에 숨어 있어서, 학생 눈에는 과정이 잘 보이지 않습니다.  
+    - 아래의 경사하강법 모드를 사용하면, 오차를 줄여가는 **과정**을 직접 관찰할 수 있습니다.
+    """)
+
+# --------------------------
+# 2) 경사하강법 직접 구현
+# --------------------------
+else:
+    st.subheader("🧮 경사하강법으로 최적화 과정 보기 (1차식 전용 데모 추천)")
+    if degree != 1:
+        st.info("경사하강법 구현은 여기서는 1차식(선형 회귀)을 기준으로 설명합니다. 차수를 1로 두고 실험해보세요.")
+
+    lr = st.sidebar.slider("학습률(learning rate)", 0.0001, 0.5, 0.01, step=0.01)
+    epochs = st.sidebar.slider("반복 횟수(epochs)", 10, 1000, 200, step=10)
+
+    # 1차식 기준 구현 (y_hat = w x + b)
+    x_arr = X.flatten()
+    y_arr = y
+
+    # 가중치 초기값
+    w = st.sidebar.number_input("초기 기울기 w", value=0.0)
+    b = st.sidebar.number_input("초기 절편 b", value=0.0)
+
+    w_hist = []
+    b_hist = []
+    loss_hist = []
+
+    n = len(x_arr)
+
+    for epoch in range(epochs):
+        y_hat = w * x_arr + b
+        error = y_hat - y_arr
+
+        # 평균제곱오차(MSE)
+        loss = np.mean(error**2)
+
+        # 기울기(그래디언트)
+        dw = (2/n) * np.sum(error * x_arr)
+        db = (2/n) * np.sum(error)
+
+        # 파라미터 업데이트
+        w -= lr * dw
+        b -= lr * db
+
+        w_hist.append(w)
+        b_hist.append(b)
+        loss_hist.append(loss)
+
+    st.markdown("#### 최종 학습 결과")
+    st.latex(r"\hat{y} = " + f"{w:.3f}x + {b:.3f}")
+
+    y_final = w * x_arr + b
+    r2 = r2_score(y_arr, y_final)
+    st.metric("결정계수 R²", f"{r2:.4f}")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### 데이터 vs 최종 예측 직선")
+        df_fit = df.copy()
+        df_fit["y_pred"] = y_final
+        fig_fit = px.scatter(df_fit, x="x", y="y", title="실제값과 예측 직선")
+        fig_fit.add_traces(
+            px.line(df_fit, x="x", y="y_pred").data
+        )
+        st.plotly_chart(fig_fit, use_container_width=True)
+
+    with col2:
+        st.markdown("#### 손실값(MSE) 변화")
+        fig_loss = px.line(y=loss_hist, labels={"x": "epoch", "y": "loss"}, title="경사하강법 손실 감소 과정")
+        st.plotly_chart(fig_loss, use_container_width=True)
+
+    st.write("""
+    - 경사하강법은 **오차가 줄어드는 방향으로 조금씩 이동**하며 최적값에 가까워지는 과정을 보여줍니다.  
+    - 학습률이 너무 크면 발산하고, 너무 작으면 수렴이 너무 느려집니다.  
+    - 학생에게 학습률을 조정하게 하면서, **최적화의 안정성**과 **속도**를 함께 탐구할 수 있습니다.
+    """)
