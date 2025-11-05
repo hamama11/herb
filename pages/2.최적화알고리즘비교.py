@@ -3,6 +3,9 @@ import numpy as np
 import plotly.graph_objects as go
 from utils import f1d, grad1d, hess1d, f2d, grad2d, hess2d
 
+# -----------------
+# 제목
+# -----------------
 st.title("최적화 알고리즘 비교: 경사하강법 vs 뉴턴")
 
 # -----------------
@@ -20,7 +23,7 @@ show_newton = st.checkbox("뉴턴 방법 표시", True)
 # -----------------
 # 1D 최적화
 # -----------------
-st.subheader(" 함수 최적화")
+st.subheader("1D 함수 최적화")
 st.markdown(r"""
 함수:  
 $$f(x) = x^4 - 3x^3 + 2$$
@@ -77,17 +80,17 @@ fig1d.update_layout(
     xaxis_title='x',
     yaxis_title='f(x)',
     width=800, height=400,
-    
 )
 st.plotly_chart(fig1d, use_container_width=True)
 
 # -----------------
-# 2D 최적화 (Plotly)
+# 2D 최적화
 # -----------------
-st.subheader("이변수 함수 최적화")
+st.subheader("2D 함수 최적화")
 st.markdown(r"""
 함수:  
 $$f(x,y) = x^4 - 3x^3 + y^4 - 3y^3 + 2$$
+""", unsafe_allow_html=True)
 
 def run_2d(x0, y0, method):
     x, y = x0, y0
@@ -107,6 +110,7 @@ def run_2d(x0, y0, method):
 history_gd_2d = run_2d(x0_2d, y0_2d, "Gradient Descent") if show_gd else []
 history_newton_2d = run_2d(x0_2d, y0_2d, "Newton") if show_newton else []
 
+# 2D surface
 Xg = np.linspace(-1, 3, 100)
 Yg = np.linspace(-1, 3, 100)
 X_grid, Y_grid = np.meshgrid(Xg, Yg)
@@ -118,29 +122,4 @@ fig2d.add_trace(go.Surface(x=X_grid, y=Y_grid, z=Z, colorscale='Viridis', opacit
 if show_gd and history_gd_2d:
     hx, hy = zip(*history_gd_2d)
     hz = f2d(np.array(hx), np.array(hy))
-    fig2d.add_trace(go.Scatter3d(
-        x=hx, y=hy, z=hz,
-        mode='lines+markers',
-        line=dict(color='red', width=5),
-        marker=dict(size=4),
-        name='경사하강법'
-    ))
-
-if show_newton and history_newton_2d:
-    hx, hy = zip(*history_newton_2d)
-    hz = f2d(np.array(hx), np.array(hy))
-    fig2d.add_trace(go.Scatter3d(
-        x=hx, y=hy, z=hz,
-        mode='lines+markers',
-        line=dict(color='blue', width=5),
-        marker=dict(size=4),
-        name='뉴턴 방법'
-    ))
-
-fig2d.update_layout(
-    scene=dict(
-        xaxis_title='X', yaxis_title='Y', zaxis_title='f(X,Y)'
-    ),
-    width=900, height=700,
-)
-st.plotly_chart(fig2d, use_container_width=True)
+    fig2d.add_t_
