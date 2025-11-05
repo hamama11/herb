@@ -12,7 +12,7 @@ def show():
     )
 
     # 여기에 본인 Colab URL 넣기
-    COLAB_URL = "https://colab.research.google.com/drive/xxxxxxxxxxxxxxxxxxxx"
+    COLAB_URL = "https://drive.google.com/file/d/1XnXU-AoqZ1QKqOlb_B5KjRMyHYW7AGko/view?usp=sharing"
 
     st.link_button("🚀 Colab 열기", COLAB_URL)
 
