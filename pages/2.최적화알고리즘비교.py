@@ -21,20 +21,10 @@ show_gd = st.checkbox("경사하강법 표시", True)
 show_newton = st.checkbox("뉴턴 방법 표시", True)
 
 # -----------------
-# 1D 최적화
+# 1D 최적화 함수
 # -----------------
-st.subheader("함수 최적화")
-st.markdown(r"""
-함수:  
-$$f(x) = x^4 - 3x^3 + 2$$
-
-**수식:**  
-- <span style='color:red'>경사하강법:</span> $$x_{t+1} = x_t - \eta f'(x_t)$$  
-- <span style='color:blue'>뉴턴 방법:</span> $$x_{t+1} = x_t - \frac{f'(x_t)}{f''(x_t)}$$
-""", unsafe_allow_html=True)
-
 def run_1d(x0, method):
-    x = x0
+    x = float(x0)
     history = [x]
     for _ in range(iterations):
         grad = grad1d(x)
@@ -49,10 +39,9 @@ def run_1d(x0, method):
 history_gd_1d = run_1d(x0_1d, "Gradient Descent") if show_gd else []
 history_newton_1d = run_1d(x0_1d, "Newton") if show_newton else []
 
-# Plotly 1D
+# 1D 그래프
 X = np.linspace(-1, 3, 400)
 Y = f1d(X)
-
 fig1d = go.Figure()
 fig1d.add_trace(go.Scatter(x=X, y=Y, mode='lines', name='f(x)'))
 
@@ -79,21 +68,14 @@ if show_newton and history_newton_1d:
 fig1d.update_layout(
     xaxis_title='x',
     yaxis_title='f(x)',
-    width=800, height=400,
+    width=700, height=400,
 )
-st.plotly_chart(fig1d, use_container_width=True)
 
 # -----------------
-# 2D 최적화
+# 2D 최적화 함수
 # -----------------
-st.subheader("다변수 함수 최적화")
-st.markdown(r"""
-함수:  
-$$f(x,y) = x^4 - 3x^3 + y^4 - 3y^3 + 2$$
-""", unsafe_allow_html=True)
-
 def run_2d(x0, y0, method):
-    x, y = x0, y0
+    x, y = float(x0), float(y0)
     history = [(x, y)]
     for _ in range(iterations):
         dfdx, dfdy = grad2d(x, y)
@@ -145,6 +127,18 @@ fig2d.update_layout(
     scene=dict(
         xaxis_title='X', yaxis_title='Y', zaxis_title='f(X,Y)'
     ),
-    width=900, height=700,
+    width=700, height=400,
 )
-st.plotly_chart(fig2d, use_container_width=True)
+
+# -----------------
+# 좌우 컬럼 배치
+# -----------------
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("1D 함수 최적화")
+    st.plotly_chart(fig1d, use_container_width=True)
+
+with col2:
+    st.subheader("2D 함수 최적화")
+    st.plotly_chart(fig2d, use_container_width=True)
