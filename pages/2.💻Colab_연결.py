@@ -11,10 +11,11 @@ def show():
         """
     )
 
-    # 여기에 본인 Colab URL 넣기
-    COLAB_URL = "https://drive.google.com/file/d/1XnXU-AoqZ1QKqOlb_B5KjRMyHYW7AGko/view?usp=sharing"
+    # Google Colab 노트북 공유 URL
+    COLAB_URL = "https://colab.research.google.com/drive/1XnXU-AoqZ1QKqOlb_B5KjRMyHYW7AGko?usp=sharing"
 
-    st.link_button("🚀 Colab 열기", COLAB_URL)
+    # 버튼 클릭 시 새 탭에서 Colab 열기
+    st.markdown(f"[🚀 Colab 열기]({COLAB_URL})", unsafe_allow_html=True)
 
     st.markdown("---")
     st.caption(
