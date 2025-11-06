@@ -1,7 +1,8 @@
 import streamlit as st
 import numpy as np
+import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go  # ✅ 회귀면(3D surface) 때문에 꼭 필요
+import plotly.graph_objects as go  # 회귀면(3D surface) 때문에 필요
 
 st.set_page_config(page_title="계수를 조절하는 최적화의 본질", layout="wide")
 
@@ -26,6 +27,7 @@ np.random.seed(0)
 x = np.linspace(0, 10, 30)
 noise = np.random.normal(0, 2, size=x.shape)
 y_linear = 2 * x + 3 + noise
+df_linear = pd.DataFrame({"x": x, "y": y_linear})
 
 # =========================
 # Step 1. 선형 회귀 (직접 a, b 조절)
@@ -38,11 +40,15 @@ st.markdown("""
 - **목표**: 실제 $y$와 예측 $p(x)$ 사이의 오차(예: MSE)를 최소화
 """)
 
+with st.expander("📋 Step 1 데이터 표로 보기", expanded=False):
+    st.dataframe(df_linear, use_container_width=True)
+
 with st.expander("👉 직선의 기울기와 절편을 직접 조절해 보기", expanded=True):
     col1, col2 = st.columns(2)
     with col1:
         a = st.slider("기울기 a", -1.0, 4.0, 2.0, 0.1)
         b = st.slider("절편 b", -2.0, 6.0, 3.0, 0.1)
+
     y_hat = a * x + b
     mse1 = np.mean((y_linear - y_hat) ** 2)
 
@@ -56,6 +62,7 @@ with st.expander("👉 직선의 기울기와 절편을 직접 조절해 보기"
     )
     fig1.add_scatter(x=x, y=y_hat, mode="lines", name="예측 직선")
     fig1.update_traces(marker=dict(size=5))
+    fig1.update_layout(height=400)
     st.plotly_chart(fig1, use_container_width=True)
 
     st.caption("➡ 기울기와 절편을 바꾸면서, '오차가 가장 작아지는 조합'을 찾는 것이 바로 **최적화**입니다.")
@@ -75,6 +82,9 @@ st.markdown("""
 - 계수가 하나 더 생겨서 모양이 **곡선**이 됩니다.
 - 그래도 여전히 하는 일은 **계수 $(a_2, a_1, a_0)$를 조절해 오차를 줄이는 것**입니다.
 """)
+
+with st.expander("📋 Step 2 데이터(같은 x, y) 표로 보기", expanded=False):
+    st.dataframe(df_linear, use_container_width=True)
 
 with st.expander("👉 2차식 계수를 조절해 보기", expanded=False):
     col1, col2, col3 = st.columns(3)
@@ -97,6 +107,7 @@ with st.expander("👉 2차식 계수를 조절해 보기", expanded=False):
     )
     fig2.add_scatter(x=x, y=y_poly, mode="lines", name="2차식 예측 곡선")
     fig2.update_traces(marker=dict(size=5))
+    fig2.update_layout(height=400)
     st.plotly_chart(fig2, use_container_width=True)
 
     st.caption("➡ 차수가 올라가고 항이 늘어날 뿐, 여전히 **계수를 조절해 오차를 줄이는 구조**입니다.")
@@ -124,6 +135,10 @@ x_nl = np.linspace(0, 4, 40)
 noise_nl = np.random.normal(0, 0.5, size=x_nl.shape)
 y_nl_true = 2 * np.exp(0.8 * x_nl)
 y_nl = y_nl_true + noise_nl
+df_nl = pd.DataFrame({"x": x_nl, "y": y_nl})
+
+with st.expander("📋 Step 3 비선형 데이터 표로 보기", expanded=False):
+    st.dataframe(df_nl, use_container_width=True)
 
 with st.expander("👉 a, b를 조절해 비선형 곡선을 맞춰 보기", expanded=False):
     col1, col2 = st.columns(2)
@@ -144,6 +159,7 @@ with st.expander("👉 a, b를 조절해 비선형 곡선을 맞춰 보기", exp
     )
     fig4.add_scatter(x=x_nl, y=y_hat_nl, mode="lines", name="비선형 예측 곡선")
     fig4.update_traces(marker=dict(size=5))
+    fig4.update_layout(height=400)
     st.plotly_chart(fig4, use_container_width=True)
 
     st.caption("➡ 수식은 복잡해졌지만, 여전히 **'계수(a, b)를 조절해 오차를 줄이는' 최적화 문제**입니다.")
@@ -171,6 +187,10 @@ x1 = np.random.uniform(0, 5, n)
 x2 = np.random.uniform(0, 5, n)
 noise2 = np.random.normal(0, 1, n)
 y_multi = 1.5 * x1 + 0.7 * x2 + 2 + noise2
+df_multi = pd.DataFrame({"x1": x1, "x2": x2, "y": y_multi})
+
+with st.expander("📋 Step 4 다변수 데이터 표로 보기", expanded=False):
+    st.dataframe(df_multi, use_container_width=True)
 
 with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 시각화", expanded=False):
     col1, col2, col3 = st.columns(3)
@@ -185,18 +205,14 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
     mse3 = np.mean((y_multi - y_hat_multi) ** 2)
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse3:.3f}**")
 
-    df_multi = {
-        "x1": x1,
-        "x2": x2,
-        "y": y_multi,
-        "y_hat": y_hat_multi,
-        "오차": y_multi - y_hat_multi,
-    }
+    df_multi_view = df_multi.copy()
+    df_multi_view["y_hat"] = y_hat_multi
+    df_multi_view["오차"] = df_multi_view["y"] - df_multi_view["y_hat"]
 
     tab1, tab2, tab3 = st.tabs([
         "3D 회귀면 + 데이터점",
         "w₁–w₂–MSE 히트맵",
-        "실제값 vs 예측값"
+        "실제값 vs 예측값 (최적화 관점)"
     ])
 
     # 🔸 3D 회귀면 시각화
@@ -236,7 +252,7 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
         )
         st.plotly_chart(fig_plane, use_container_width=True)
 
-    # 🔸 w1–w2–MSE 히트맵
+    # 🔸 w1–w2–MSE 히트맵 (빨간 점 = 현재 선택한 w₁, w₂)
     with tab2:
         w1_grid = np.linspace(0.0, 3.0, 40)
         w2_grid = np.linspace(0.0, 2.0, 40)
@@ -264,22 +280,50 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             x=[w2],
             y=[w1],
             mode="markers",
-            marker=dict(color="blue", size=8),
-            name="현재 (w₁, w₂)"
+            marker=dict(color="red", size=10, symbol="x"),
+            name="현재 선택한 (w₁, w₂)"
         )
 
+        fig_heat.update_layout(height=450)
         st.plotly_chart(fig_heat, use_container_width=True)
 
-    # 🔸 실제 vs 예측
+        st.caption("🔴 빨간 X 표시 = 지금 슬라이더로 선택한 (w₁, w₂) 위치입니다. 색이 밝을수록 MSE가 크고, 어두울수록 MSE가 작습니다.")
+
+    # 🔸 실제 vs 예측 (최적화 관점: y=x 기준선 추가)
     with tab3:
-        fig_pred = px.scatter(
+        fig_pred = go.Figure()
+
+        # 완벽한 예측 기준선 y = x
+        y_min = min(y_multi.min(), y_hat_multi.min())
+        y_max = max(y_multi.max(), y_hat_multi.max())
+
+        fig_pred.add_trace(go.Scatter(
+            x=[y_min, y_max],
+            y=[y_min, y_max],
+            mode="lines",
+            line=dict(dash="dash"),
+            name="완벽한 예측선 (y = x)"
+        ))
+
+        # 실제 vs 예측 점
+        fig_pred.add_trace(go.Scatter(
             x=y_multi,
             y=y_hat_multi,
-            labels={"x": "실제 y", "y": "예측 y_hat"},
-            title="실제값 vs 예측값"
+            mode="markers",
+            marker=dict(size=6, color="royalblue", opacity=0.8),
+            name="실제 vs 예측"
+        ))
+
+        fig_pred.update_layout(
+            title="실제값 vs 예측값 (선에 가까울수록 잘 맞는 것)",
+            xaxis_title="실제 y",
+            yaxis_title="예측 y_hat",
+            height=450,
         )
-        fig_pred.update_traces(marker=dict(size=5))
+
         st.plotly_chart(fig_pred, use_container_width=True)
+
+        st.caption("➡ 점들이 y = x 선에 가까워질수록 ‘예측 = 실제’가 되어, 최적화가 잘 된 상태라고 볼 수 있습니다.")
 
     st.caption("➡ 여러 변수와 계수가 있어도, 여전히 하는 일은 **w₁, w₂, b를 잘 골라 오차를 줄이는 것**입니다.")
 
@@ -309,4 +353,4 @@ In fact, 위 내용을 한 문장으로 정리하면 이렇게 말할 수 있습
 
 st.markdown("---")
 
-st.success("정리: 선형이든, 다항이든, 다변수든, 비선형이든 결국 **'계수를 조절해서 오차를 줄이는 최적화'**라는 같은 틀 안에 있다.")
+st.success("정리: 선형이든, 다항이든, 다변수든, 비선형이든 결국 **'계를 조절해서 오차를 줄이는 최적화'**라는 같은 틀 안에 있다.")
