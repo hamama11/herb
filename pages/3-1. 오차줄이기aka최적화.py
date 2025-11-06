@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go  # 회귀면(3D surface) 때문에 필요
+import plotly.graph_objects as go  # 3D 회귀면에 필요
 
 st.set_page_config(page_title="계수를 조절하는 최적화의 본질", layout="wide")
 
@@ -22,48 +22,85 @@ st.markdown("""
 
 st.markdown("---")
 
-# 공통 데이터 (1차 선형 + 잡음)
+# =========================
+# Step 1 데이터: 선형 패턴
+# =========================
 np.random.seed(0)
-x = np.linspace(0, 10, 30)
-noise = np.random.normal(0, 2, size=x.shape)
-y_linear = 2 * x + 3 + noise
-df_linear = pd.DataFrame({"x": x, "y": y_linear})
+x1_data = np.linspace(0, 10, 30)
+noise1 = np.random.normal(0, 1.5, size=x1_data.shape)
+y1_data = 1.8 * x1_data + 2 + noise1   # 진짜 계수: 1.8, 2
+df_step1 = pd.DataFrame({"x": x1_data, "y": y1_data})
 
 # =========================
-# Step 1. 선형 회귀 (직접 a, b 조절)
+# Step 2 데이터: 2차 곡선 패턴
+# =========================
+np.random.seed(1)
+x2_data = np.linspace(-5, 5, 40)
+noise2 = np.random.normal(0, 3.0, size=x2_data.shape)
+# 진짜 계수: a2=0.4, a1=-2, a0=3
+y2_data = 0.4 * x2_data**2 - 2 * x2_data + 3 + noise2
+df_step2 = pd.DataFrame({"x": x2_data, "y": y2_data})
+
+# =========================
+# Step 3 데이터: 지수 증가 비선형 패턴
+# =========================
+np.random.seed(2)
+x3_data = np.linspace(0, 4, 40)
+noise3 = np.random.normal(0, 1.0, size=x3_data.shape)
+# 진짜 계수: a=2, b=0.7
+y3_data = 2 * np.exp(0.7 * x3_data) + noise3
+df_step3 = pd.DataFrame({"x": x3_data, "y": y3_data})
+
+# =========================
+# Step 4 데이터: 다변수 평면 패턴
+# =========================
+np.random.seed(3)
+n4 = 50
+x4_1 = np.random.uniform(0, 5, n4)
+x4_2 = np.random.uniform(0, 5, n4)
+noise4 = np.random.normal(0, 1.0, n4)
+# 진짜 계수: w1=1.2, w2=-0.8, b=5
+y4_data = 1.2 * x4_1 - 0.8 * x4_2 + 5 + noise4
+df_step4 = pd.DataFrame({"x1": x4_1, "x2": x4_2, "y": y4_data})
+
+# =========================
+# Step 1. 선형 회귀
 # =========================
 st.header("🔹 Step 1. 선형 회귀 (Linear Regression)")
 
 st.markdown("""
 모델: $p(x) = a x + b$  
+
+- 데이터는 **대체로 직선 모양**입니다.
 - **조절하는 것**: 기울기 $a$, 절편 $b$  
 - **목표**: 실제 $y$와 예측 $p(x)$ 사이의 오차(예: MSE)를 최소화
 """)
 
-with st.expander("📋 Step 1 데이터 표로 보기", expanded=False):
-    st.dataframe(df_linear, use_container_width=True)
-
 with st.expander("👉 직선의 기울기와 절편을 직접 조절해 보기", expanded=True):
-    col1, col2 = st.columns(2)
-    with col1:
-        a = st.slider("기울기 a", -1.0, 4.0, 2.0, 0.1)
-        b = st.slider("절편 b", -2.0, 6.0, 3.0, 0.1)
+    col_ctrl, col_dummy = st.columns([1, 2])  # 슬라이더는 좁게
+    with col_ctrl:
+        a = st.slider("기울기 a", -1.0, 4.0, 1.8, 0.1)
+        b = st.slider("절편 b", -2.0, 8.0, 2.0, 0.1)
 
-    y_hat = a * x + b
-    mse1 = np.mean((y_linear - y_hat) ** 2)
-
+    y1_hat = a * x1_data + b
+    mse1 = np.mean((y1_data - y1_hat) ** 2)
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse1:.3f}**")
 
-    fig1 = px.scatter(
-        x=x,
-        y=y_linear,
-        labels={"x": "x", "y": "y"},
-        title="데이터 vs 직선 모델"
-    )
-    fig1.add_scatter(x=x, y=y_hat, mode="lines", name="예측 직선")
-    fig1.update_traces(marker=dict(size=5))
-    fig1.update_layout(height=400)
-    st.plotly_chart(fig1, use_container_width=True)
+    col_fig, col_table = st.columns([2, 1])
+    with col_fig:
+        fig1 = px.scatter(
+            x=x1_data,
+            y=y1_data,
+            labels={"x": "x", "y": "y"},
+            title="Step 1: 선형 데이터 vs 직선 모델"
+        )
+        fig1.add_scatter(x=x1_data, y=y1_hat, mode="lines", name="예측 직선")
+        fig1.update_traces(marker=dict(size=6))
+        fig1.update_layout(height=400)
+        st.plotly_chart(fig1, use_container_width=True)
+    with col_table:
+        st.markdown("**데이터 표**")
+        st.dataframe(df_step1, use_container_width=True, height=380)
 
     st.caption("➡ 기울기와 절편을 바꾸면서, '오차가 가장 작아지는 조합'을 찾는 것이 바로 **최적화**입니다.")
 
@@ -75,52 +112,55 @@ st.markdown("---")
 st.header("🔹 Step 2. 다항 회귀 (Polynomial Regression, 2차)")
 
 st.markdown("""
-이번에는 **2차식**으로 가정해 봅니다.
+이번에는 **U자 모양(포물선)**에 더 잘 맞는 데이터를 사용합니다.
 
 모델:  $p(x) = a_2 x^2 + a_1 x + a_0$  
 
-- 계수가 하나 더 생겨서 모양이 **곡선**이 됩니다.
-- 그래도 여전히 하는 일은 **계수 $(a_2, a_1, a_0)$를 조절해 오차를 줄이는 것**입니다.
+- 데이터는 **대체로 2차 곡선** 형태입니다.
+- 하지만 여전히 하는 일은 **계수 $(a_2, a_1, a_0)$를 조절해 오차를 줄이는 것**입니다.
 """)
 
-with st.expander("📋 Step 2 데이터(같은 x, y) 표로 보기", expanded=False):
-    st.dataframe(df_linear, use_container_width=True)
-
 with st.expander("👉 2차식 계수를 조절해 보기", expanded=False):
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        a2 = st.slider("이차항 계수 a₂", -1.0, 1.0, 0.0, 0.05)
-    with col2:
-        a1 = st.slider("일차항 계수 a₁", 0.0, 4.0, 2.0, 0.1)
-    with col3:
-        a0 = st.slider("상수항 a₀", 0.0, 6.0, 3.0, 0.1)
+    col_ctrl = st.columns(3)
+    with col_ctrl[0]:
+        a2 = st.slider("이차항 계수 a₂", -1.0, 1.0, 0.4, 0.05)
+    with col_ctrl[1]:
+        a1 = st.slider("일차항 계수 a₁", -4.0, 4.0, -2.0, 0.1)
+    with col_ctrl[2]:
+        a0 = st.slider("상수항 a₀", -2.0, 8.0, 3.0, 0.1)
 
-    y_poly = a2 * x**2 + a1 * x + a0
-    mse2 = np.mean((y_linear - y_poly) ** 2)
+    y2_hat = a2 * x2_data**2 + a1 * x2_data + a0
+    mse2 = np.mean((y2_data - y2_hat) ** 2)
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse2:.3f}**")
 
-    fig2 = px.scatter(
-        x=x,
-        y=y_linear,
-        labels={"x": "x", "y": "y"},
-        title="데이터 vs 2차식 모델"
-    )
-    fig2.add_scatter(x=x, y=y_poly, mode="lines", name="2차식 예측 곡선")
-    fig2.update_traces(marker=dict(size=5))
-    fig2.update_layout(height=400)
-    st.plotly_chart(fig2, use_container_width=True)
+    col_fig, col_table = st.columns([2, 1])
+    with col_fig:
+        fig2 = px.scatter(
+            x=x2_data,
+            y=y2_data,
+            labels={"x": "x", "y": "y"},
+            title="Step 2: 포물선 데이터 vs 2차식 모델"
+        )
+        fig2.add_scatter(x=np.sort(x2_data), y=y2_hat[np.argsort(x2_data)],
+                         mode="lines", name="2차식 예측 곡선")
+        fig2.update_traces(marker=dict(size=6))
+        fig2.update_layout(height=400)
+        st.plotly_chart(fig2, use_container_width=True)
+    with col_table:
+        st.markdown("**데이터 표**")
+        st.dataframe(df_step2, use_container_width=True, height=380)
 
-    st.caption("➡ 차수가 올라가고 항이 늘어날 뿐, 여전히 **계수를 조절해 오차를 줄이는 구조**입니다.")
+    st.caption("➡ 직선을 쓰면 어색했던 데이터가, 2차식으로는 훨씬 잘 맞을 수 있습니다.")
 
 st.markdown("---")
 
 # =========================
-# Step 3. 비선형 회귀 (exp 형태)
+# Step 3. 비선형 회귀 (exp)
 # =========================
 st.header("🔹 Step 3. 비선형 회귀 (Nonlinear Regression)")
 
 st.markdown("""
-이번에는 지수함수 형태의 데이터를 상정해 봅니다.
+이번에는 **지수적으로 증가하는 데이터**를 사용합니다.
 
 모델 예시:  $p(x) = a e^{b x}$  
 
@@ -129,40 +169,34 @@ st.markdown("""
 - 그래도 결국 **$a, b$를 조절해 오차를 줄이는 구조**는 같습니다.
 """)
 
-# 비선형 데이터
-np.random.seed(2)
-x_nl = np.linspace(0, 4, 40)
-noise_nl = np.random.normal(0, 0.5, size=x_nl.shape)
-y_nl_true = 2 * np.exp(0.8 * x_nl)
-y_nl = y_nl_true + noise_nl
-df_nl = pd.DataFrame({"x": x_nl, "y": y_nl})
-
-with st.expander("📋 Step 3 비선형 데이터 표로 보기", expanded=False):
-    st.dataframe(df_nl, use_container_width=True)
-
 with st.expander("👉 a, b를 조절해 비선형 곡선을 맞춰 보기", expanded=False):
-    col1, col2 = st.columns(2)
-    with col1:
-        a_nl = st.slider("계수 a", 0.0, 4.0, 2.0, 0.1)
-    with col2:
-        b_nl = st.slider("지수 계수 b", 0.0, 1.5, 0.8, 0.05)
+    col_ctrl = st.columns(2)
+    with col_ctrl[0]:
+        a3 = st.slider("계수 a", 0.0, 4.0, 2.0, 0.1)
+    with col_ctrl[1]:
+        b3 = st.slider("지수 계수 b", 0.0, 1.5, 0.7, 0.05)
 
-    y_hat_nl = a_nl * np.exp(b_nl * x_nl)
-    mse4 = np.mean((y_nl - y_hat_nl) ** 2)
-    st.write(f"📉 현재 MSE(평균제곱오차): **{mse4:.3f}**")
+    y3_hat = a3 * np.exp(b3 * x3_data)
+    mse3 = np.mean((y3_data - y3_hat) ** 2)
+    st.write(f"📉 현재 MSE(평균제곱오차): **{mse3:.3f}**")
 
-    fig4 = px.scatter(
-        x=x_nl,
-        y=y_nl,
-        labels={"x": "x", "y": "y"},
-        title="비선형 데이터 vs 모델"
-    )
-    fig4.add_scatter(x=x_nl, y=y_hat_nl, mode="lines", name="비선형 예측 곡선")
-    fig4.update_traces(marker=dict(size=5))
-    fig4.update_layout(height=400)
-    st.plotly_chart(fig4, use_container_width=True)
+    col_fig, col_table = st.columns([2, 1])
+    with col_fig:
+        fig3 = px.scatter(
+            x=x3_data,
+            y=y3_data,
+            labels={"x": "x", "y": "y"},
+            title="Step 3: 지수형 데이터 vs 비선형 모델"
+        )
+        fig3.add_scatter(x=x3_data, y=y3_hat, mode="lines", name="비선형 예측 곡선")
+        fig3.update_traces(marker=dict(size=6))
+        fig3.update_layout(height=400)
+        st.plotly_chart(fig3, use_container_width=True)
+    with col_table:
+        st.markdown("**데이터 표**")
+        st.dataframe(df_step3, use_container_width=True, height=380)
 
-    st.caption("➡ 수식은 복잡해졌지만, 여전히 **'계수(a, b)를 조절해 오차를 줄이는' 최적화 문제**입니다.")
+    st.caption("➡ 수식 모양만 달라졌을 뿐, 여전히 **a, b를 조절해 오차를 줄이는 최적화 문제**입니다.")
 
 st.markdown("---")
 
@@ -172,98 +206,94 @@ st.markdown("---")
 st.header("🔹 Step 4. 다변수 회귀 (Multiple Regression)")
 
 st.markdown("""
-이번에는 입력 변수가 두 개인 상황을 가정해 봅니다.
+이번에는 입력 변수가 **두 개(x1, x2)** 인 상황입니다.
 
 모델:  $p(x_1, x_2) = w_1 x_1 + w_2 x_2 + b$
 
+- 데이터는 대체로 **한 평면 위에 흩어져 있는 모양**입니다.
 - 이제는 **여러 방향(축)**에서 오차를 줄여야 하기 때문에  
   파라미터 벡터 $(w_1, w_2, b)$를 동시에 조절합니다.
 """)
 
-# 예시 데이터 생성
-np.random.seed(1)
-n = 40
-x1 = np.random.uniform(0, 5, n)
-x2 = np.random.uniform(0, 5, n)
-noise2 = np.random.normal(0, 1, n)
-y_multi = 1.5 * x1 + 0.7 * x2 + 2 + noise2
-df_multi = pd.DataFrame({"x1": x1, "x2": x2, "y": y_multi})
-
-with st.expander("📋 Step 4 다변수 데이터 표로 보기", expanded=False):
-    st.dataframe(df_multi, use_container_width=True)
-
 with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 시각화", expanded=False):
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        w1 = st.slider("w₁ (x1 계수)", 0.0, 3.0, 1.5, 0.1)
-    with col2:
-        w2 = st.slider("w₂ (x2 계수)", 0.0, 2.0, 0.7, 0.1)
-    with col3:
-        b_mv = st.slider("b (절편)", 0.0, 4.0, 2.0, 0.1)
+    col_ctrl = st.columns(3)
+    with col_ctrl[0]:
+        w1 = st.slider("w₁ (x1 계수)", -1.0, 3.0, 1.2, 0.1)
+    with col_ctrl[1]:
+        w2 = st.slider("w₂ (x2 계수)", -2.0, 2.0, -0.8, 0.1)
+    with col_ctrl[2]:
+        b4 = st.slider("b (절편)", 0.0, 10.0, 5.0, 0.1)
 
-    y_hat_multi = w1 * x1 + w2 * x2 + b_mv
-    mse3 = np.mean((y_multi - y_hat_multi) ** 2)
-    st.write(f"📉 현재 MSE(평균제곱오차): **{mse3:.3f}**")
+    y4_hat = w1 * x4_1 + w2 * x4_2 + b4
+    mse4 = np.mean((y4_data - y4_hat) ** 2)
+    st.write(f"📉 현재 MSE(평균제곱오차): **{mse4:.3f}**")
 
-    df_multi_view = df_multi.copy()
-    df_multi_view["y_hat"] = y_hat_multi
-    df_multi_view["오차"] = df_multi_view["y"] - df_multi_view["y_hat"]
+    df_step4_view = df_step4.copy()
+    df_step4_view["y_hat"] = y4_hat
+    df_step4_view["오차"] = df_step4_view["y"] - df_step4_view["y_hat"]
 
     tab1, tab2, tab3 = st.tabs([
-        "3D 회귀면 + 데이터점",
+        "3D 회귀면 + 데이터점 + 표",
         "w₁–w₂–MSE 히트맵",
         "실제값 vs 예측값 (최적화 관점)"
     ])
 
-    # 🔸 3D 회귀면 시각화
+    # 🔸 3D 회귀면 + 표
     with tab1:
-        grid_x1 = np.linspace(0, 5, 25)
-        grid_x2 = np.linspace(0, 5, 25)
-        GX1, GX2 = np.meshgrid(grid_x1, grid_x2)
-        GY = w1 * GX1 + w2 * GX2 + b_mv
+        col_fig, col_table = st.columns([2, 1])
 
-        fig_plane = go.Figure()
-        fig_plane.add_scatter3d(
-            x=x1,
-            y=x2,
-            z=y_multi,
-            mode="markers",
-            marker=dict(size=3, color="royalblue", opacity=0.8),
-            name="데이터"
-        )
+        with col_fig:
+            grid_x1 = np.linspace(0, 5, 25)
+            grid_x2 = np.linspace(0, 5, 25)
+            GX1, GX2 = np.meshgrid(grid_x1, grid_x2)
+            GY = w1 * GX1 + w2 * GX2 + b4
 
-        fig_plane.add_surface(
-            x=GX1,
-            y=GX2,
-            z=GY,
-            colorscale="RdBu",
-            opacity=0.6,
-            name="회귀면"
-        )
+            fig_plane = go.Figure()
+            fig_plane.add_scatter3d(
+                x=x4_1,
+                y=x4_2,
+                z=y4_data,
+                mode="markers",
+                marker=dict(size=3, color="royalblue", opacity=0.8),
+                name="데이터"
+            )
 
-        fig_plane.update_layout(
-            title="회귀면과 데이터의 위치 관계",
-            scene=dict(
-                xaxis_title="x1",
-                yaxis_title="x2",
-                zaxis_title="y",
-            ),
-            height=500,
-        )
-        st.plotly_chart(fig_plane, use_container_width=True)
+            fig_plane.add_surface(
+                x=GX1,
+                y=GX2,
+                z=GY,
+                colorscale="RdBu",
+                opacity=0.5,
+                name="회귀면"
+            )
 
-    # 🔸 w1–w2–MSE 히트맵 (빨간 점 = 현재 선택한 w₁, w₂)
+            fig_plane.update_layout(
+                title="Step 4: 다변수 데이터와 회귀면",
+                scene=dict(
+                    xaxis_title="x1",
+                    yaxis_title="x2",
+                    zaxis_title="y",
+                ),
+                height=500,
+            )
+            st.plotly_chart(fig_plane, use_container_width=True)
+
+        with col_table:
+            st.markdown("**데이터 표**")
+            st.dataframe(df_step4_view, use_container_width=True, height=480)
+
+    # 🔸 w1–w2–MSE 히트맵
     with tab2:
-        w1_grid = np.linspace(0.0, 3.0, 40)
-        w2_grid = np.linspace(0.0, 2.0, 40)
+        w1_grid = np.linspace(-1.0, 3.0, 50)
+        w2_grid = np.linspace(-2.0, 2.0, 50)
         W1, W2 = np.meshgrid(w1_grid, w2_grid, indexing="ij")
 
         preds = (
-            W1[..., None] * x1[None, None, :]
-            + W2[..., None] * x2[None, None, :]
-            + b_mv
+            W1[..., None] * x4_1[None, None, :]
+            + W2[..., None] * x4_2[None, None, :]
+            + b4
         )
-        mse_grid = np.mean((preds - y_multi[None, None, :]) ** 2, axis=-1)
+        mse_grid = np.mean((preds - y4_data[None, None, :]) ** 2, axis=-1)
 
         fig_heat = px.imshow(
             mse_grid,
@@ -287,16 +317,16 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
         fig_heat.update_layout(height=450)
         st.plotly_chart(fig_heat, use_container_width=True)
 
-        st.caption("🔴 빨간 X 표시 = 지금 슬라이더로 선택한 (w₁, w₂) 위치입니다. 색이 밝을수록 MSE가 크고, 어두울수록 MSE가 작습니다.")
+        st.caption("🔴 빨간 X = 지금 슬라이더로 선택한 (w₁, w₂) 위치. 주변 색이 어두울수록 MSE가 작아지는(=더 좋은) 구역입니다.")
 
-    # 🔸 실제 vs 예측 (최적화 관점: y=x 기준선 추가)
+    # 🔸 실제 vs 예측 (최적화 관점)
     with tab3:
         fig_pred = go.Figure()
 
-        # 완벽한 예측 기준선 y = x
-        y_min = min(y_multi.min(), y_hat_multi.min())
-        y_max = max(y_multi.max(), y_hat_multi.max())
+        y_min = min(y4_data.min(), y4_hat.min())
+        y_max = max(y4_data.max(), y4_hat.max())
 
+        # 이상적 상황: y = x
         fig_pred.add_trace(go.Scatter(
             x=[y_min, y_max],
             y=[y_min, y_max],
@@ -307,15 +337,15 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
 
         # 실제 vs 예측 점
         fig_pred.add_trace(go.Scatter(
-            x=y_multi,
-            y=y_hat_multi,
+            x=y4_data,
+            y=y4_hat,
             mode="markers",
             marker=dict(size=6, color="royalblue", opacity=0.8),
             name="실제 vs 예측"
         ))
 
         fig_pred.update_layout(
-            title="실제값 vs 예측값 (선에 가까울수록 잘 맞는 것)",
+            title="실제값 vs 예측값 (점들이 y=x에 가까울수록 최적화 잘 된 것)",
             xaxis_title="실제 y",
             yaxis_title="예측 y_hat",
             height=450,
@@ -323,19 +353,18 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
 
         st.plotly_chart(fig_pred, use_container_width=True)
 
-        st.caption("➡ 점들이 y = x 선에 가까워질수록 ‘예측 = 실제’가 되어, 최적화가 잘 된 상태라고 볼 수 있습니다.")
-
-    st.caption("➡ 여러 변수와 계수가 있어도, 여전히 하는 일은 **w₁, w₂, b를 잘 골라 오차를 줄이는 것**입니다.")
+        st.caption("➡ 점들이 y = x 선에 더 가까워질수록, 우리가 조절한 (w₁, w₂, b)가 ‘좋은 선택’이 된 것입니다.")
 
 st.markdown("---")
 
 # =========================
-# Step 5. 수식 대신 쉬운 말로 정리
+# Step 5. 최적화의 공통 구조
 # =========================
 st.header("🔹 Step 5. 최적화의 공통 구조")
 
 st.markdown("""
-In fact, 위 내용을 한 문장으로 정리하면 이렇게 말할 수 있습니다.
+지금까지 네 가지 서로 다른 모양의 데이터를 보았지만,  
+**우리가 한 일은 항상 같았습니다.**
 
 > **어떤 모양의 함수이든,  
 > 000(손실)를 줄이기 위해  
@@ -353,4 +382,4 @@ In fact, 위 내용을 한 문장으로 정리하면 이렇게 말할 수 있습
 
 st.markdown("---")
 
-st.success("정리: 선형이든, 다항이든, 다변수든, 비선형이든 결국 **'계를 조절해서 오차를 줄이는 최적화'**라는 같은 틀 안에 있다.")
+st.success("정리: 선형이든, 다항이든, 다변수든, 비선형이든 결국 **'계수를 조절해서 오차를 줄이는 최적화'**라는 같은 틀 안에 있다.")
