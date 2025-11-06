@@ -5,7 +5,7 @@ st.set_page_config(page_title="계수를 조절하는 최적화의 본질", layo
 
 st.title("🎯 회귀했더니 000")
 
-st.image("assets/derpy_tiger.png",use_container_width=True)
+st.image("assets/derpy_tiger.png", use_container_width=True)
 
 st.markdown("""
 수학적으로 복잡해 보여도, **모든 회귀모델의 핵심 과정은 동일합니다.**  
@@ -66,11 +66,10 @@ $\displaystyle \text{Find } \theta = [a,b,c,\dots] \text{ that minimizes } L(\th
 
 ✅ 결론:  
 > “선형이든 비선형이든, 회귀든 분류든,  
-> 결국 최적화는 **000을 줄이기 위해 000을 조절하는 과정**이다.”  
-"""
-st.info("💬 000에 들어갈 말은? ")
+> 결국 최적화는 **오차(손실)를 줄이기 위해 파라미터(계수)를 조절하는 과정**이다.”  
+""")
 
-)
+st.info("💬 000에 들어갈 말은? ")
 
 # 시각적 요약 다이어그램
 st.markdown("---")
@@ -129,4 +128,4 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-st.info("💬 ** 회귀와 최적화는 '계수를 조절하여 오차를 최소화하는 과정'.**")
+st.info("💬 **회귀와 최적화는 '계수를 조절하여 오차(손실)를 최소화하는 과정'.**")
