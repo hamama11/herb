@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go  # ✅ 회귀면(3D surface) 때문에 꼭 필요
 
 st.set_page_config(page_title="계수를 조절하는 최적화의 본질", layout="wide")
 
@@ -54,7 +55,7 @@ with st.expander("👉 직선의 기울기와 절편을 직접 조절해 보기"
         title="데이터 vs 직선 모델"
     )
     fig1.add_scatter(x=x, y=y_hat, mode="lines", name="예측 직선")
-    fig1.update_traces(marker=dict(size=5))  # 점 크기 줄이기
+    fig1.update_traces(marker=dict(size=5))
     st.plotly_chart(fig1, use_container_width=True)
 
     st.caption("➡ 기울기와 절편을 바꾸면서, '오차가 가장 작아지는 조합'을 찾는 것이 바로 **최적화**입니다.")
@@ -184,7 +185,6 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
     mse3 = np.mean((y_multi - y_hat_multi) ** 2)
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse3:.3f}**")
 
-    # 데이터프레임 구성
     df_multi = {
         "x1": x1,
         "x2": x2,
@@ -201,15 +201,12 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
 
     # 🔸 3D 회귀면 시각화
     with tab1:
-        # 평면용 grid
         grid_x1 = np.linspace(0, 5, 25)
         grid_x2 = np.linspace(0, 5, 25)
         GX1, GX2 = np.meshgrid(grid_x1, grid_x2)
         GY = w1 * GX1 + w2 * GX2 + b_mv
 
         fig_plane = go.Figure()
-
-        # 실제 데이터 점
         fig_plane.add_scatter3d(
             x=x1,
             y=x2,
@@ -219,7 +216,6 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             name="데이터"
         )
 
-        # 회귀면
         fig_plane.add_surface(
             x=GX1,
             y=GX2,
@@ -234,18 +230,23 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             scene=dict(
                 xaxis_title="x1",
                 yaxis_title="x2",
-                zaxis_title="y"
+                zaxis_title="y",
             ),
             height=500,
         )
         st.plotly_chart(fig_plane, use_container_width=True)
 
-    # 🔸 w1-w2 히트맵 (b 고정)
+    # 🔸 w1–w2–MSE 히트맵
     with tab2:
         w1_grid = np.linspace(0.0, 3.0, 40)
         w2_grid = np.linspace(0.0, 2.0, 40)
         W1, W2 = np.meshgrid(w1_grid, w2_grid, indexing="ij")
-        preds = W1[..., None] * x1[None, None, :] + W2[..., None, :] * x2[None, None, :] + b_mv
+
+        preds = (
+            W1[..., None] * x1[None, None, :]
+            + W2[..., None] * x2[None, None, :]
+            + b_mv
+        )
         mse_grid = np.mean((preds - y_multi[None, None, :]) ** 2, axis=-1)
 
         fig_heat = px.imshow(
@@ -258,15 +259,22 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             labels={"x": "w₂", "y": "w₁", "color": "MSE"},
             title="w₁–w₂ 평면에서 MSE 히트맵 (b 고정)"
         )
-        fig_heat.add_scatter(x=[w2], y=[w1], mode="markers",
-                             marker=dict(color="blue", size=8),
-                             name="현재 (w₁, w₂)")
+
+        fig_heat.add_scatter(
+            x=[w2],
+            y=[w1],
+            mode="markers",
+            marker=dict(color="blue", size=8),
+            name="현재 (w₁, w₂)"
+        )
+
         st.plotly_chart(fig_heat, use_container_width=True)
 
     # 🔸 실제 vs 예측
     with tab3:
         fig_pred = px.scatter(
-            x=y_multi, y=y_hat_multi,
+            x=y_multi,
+            y=y_hat_multi,
             labels={"x": "실제 y", "y": "예측 y_hat"},
             title="실제값 vs 예측값"
         )
@@ -302,4 +310,3 @@ In fact, 위 내용을 한 문장으로 정리하면 이렇게 말할 수 있습
 st.markdown("---")
 
 st.success("정리: 선형이든, 다항이든, 다변수든, 비선형이든 결국 **'계수를 조절해서 오차를 줄이는 최적화'**라는 같은 틀 안에 있다.")
-
