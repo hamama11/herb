@@ -3,12 +3,12 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="계수를 조절하는 최적화의 본질", layout="wide")
 
-st.title("🎯 회귀했더니 000")
+st.title("🎯 회귀했더니 ~ ~ ~ ~")
 
 st.image("assets/회귀.png", use_container_width=200)
 
-st.markdown("""
-수학적으로 복잡해 보여도, **모든 회귀모델의 핵심 과정은 동일합니다.**  
+st.markdown(""" ##수 많은 회귀 함수,
+# 복잡해 보여도, **모든 회귀모델의 핵심 과정은 동일합니다.**  
 > 📌 _오차가 최소가 되도록 모델의 **계수(parameter)** 를 조절하는 것_
 
 ---
