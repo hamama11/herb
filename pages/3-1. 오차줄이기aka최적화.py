@@ -5,13 +5,14 @@ st.set_page_config(page_title="계수를 조절하는 최적화의 본질", layo
 
 st.title("🎯 회귀했더니 ~ ~ ~ ~")
 
-st.image("assets/회귀.png", use_container_width=200)
----
-st.markdown(""" 
-##수 많은 회귀 함수,
-# 복잡해 보여도, ** 회귀모델의 핵심 과정은 동일합니다.**  
-> 📌 _오차가 최소가 되도록 모델의 **계수(parameter)** 를 조절하는 것_
+# 이미지: use_container_width는 True/False 여야 해요
+st.image("assets/회귀.png", use_container_width=True)
 
+# 여기부터는 Markdown 블록
+st.markdown(r""" 
+## 수 많은 회귀 함수,  
+# 복잡해 보여도, **회귀모델의 핵심 과정은 동일합니다.**  
+> 📌 _오차가 최소가 되도록 모델의 **계수(parameter)** 를 조절하는 것_
 
 
 ### 🔹 Step 1. 선형 회귀 (Linear Regression)
@@ -38,7 +39,7 @@ st.markdown("""
 - 모델:  $p(x_1, x_2, ..., x_n) = w_1x_1 + w_2x_2 + ... + w_nx_n + b$
 - 조정 대상:  $w_1, w_2, ..., b$
 - 오차함수:  $\text{SSE}(w) = \sum (y_i - p(x_i))^2$
-- 최적화:  $\mathbf{w}_{new} = \mathbf{w}_{old} - \eta \nabla_\mathbf{w} \text{SSE}$
+- 최적화:  $\mathbf{w}_{\text{new}} = \mathbf{w}_{\text{old}} - \eta \nabla_\mathbf{w} \text{SSE}$
 
 💡 여러 방향에서 동시에 오차를 줄이기 때문에 **기울기 벡터(gradient vector)** 를 사용
 
@@ -102,8 +103,7 @@ for start, end in edges:
     fig.add_annotation(
         x=x1, y=y1, ax=x0, ay=y0,
         xref="x", yref="y", axref="x", ayref="y",
-        showarrow=True, arrowhead=3, arrowsize=1.2, arrowwidth=1.8,
-        arrowcolor="royalblue"
+        showarrow=True, arrowhead=3, arrowsize=1.2, arrowwidth=1.8
     )
 
 # 노드 점과 라벨
@@ -111,7 +111,7 @@ for name, (x, y) in nodes.items():
     fig.add_trace(go.Scatter(
         x=[x], y=[y],
         mode="markers+text",
-        marker=dict(size=20, color="lightblue", line=dict(width=2, color="royalblue")),
+        marker=dict(size=20),
         text=[name],
         textposition="top center",
         hovertext=f"{name} 단계에서 조절되는 것은 계수(parameter)",
