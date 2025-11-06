@@ -5,7 +5,7 @@ st.set_page_config(page_title="계수를 조절하는 최적화의 본질", layo
 
 st.title("🎯 회귀했더니 000")
 
-st.image("assets/회귀.png", use_container_width=600)
+st.image("assets/회귀.png", use_container_width=200)
 
 st.markdown("""
 수학적으로 복잡해 보여도, **모든 회귀모델의 핵심 과정은 동일합니다.**  
