@@ -54,6 +54,7 @@ with st.expander("👉 직선의 기울기와 절편을 직접 조절해 보기"
         title="데이터 vs 직선 모델"
     )
     fig1.add_scatter(x=x, y=y_hat, mode="lines", name="예측 직선")
+    fig1.update_traces(marker=dict(size=5))  # 점 크기 줄이기
     st.plotly_chart(fig1, use_container_width=True)
 
     st.caption("➡ 기울기와 절편을 바꾸면서, '오차가 가장 작아지는 조합'을 찾는 것이 바로 **최적화**입니다.")
@@ -94,6 +95,7 @@ with st.expander("👉 2차식 계수를 조절해 보기", expanded=False):
         title="데이터 vs 2차식 모델"
     )
     fig2.add_scatter(x=x, y=y_poly, mode="lines", name="2차식 예측 곡선")
+    fig2.update_traces(marker=dict(size=5))
     st.plotly_chart(fig2, use_container_width=True)
 
     st.caption("➡ 차수가 올라가고 항이 늘어날 뿐, 여전히 **계수를 조절해 오차를 줄이는 구조**입니다.")
@@ -140,6 +142,7 @@ with st.expander("👉 a, b를 조절해 비선형 곡선을 맞춰 보기", exp
         title="비선형 데이터 vs 모델"
     )
     fig4.add_scatter(x=x_nl, y=y_hat_nl, mode="lines", name="비선형 예측 곡선")
+    fig4.update_traces(marker=dict(size=5))
     st.plotly_chart(fig4, use_container_width=True)
 
     st.caption("➡ 수식은 복잡해졌지만, 여전히 **'계수(a, b)를 조절해 오차를 줄이는' 최적화 문제**입니다.")
@@ -190,13 +193,15 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 여러 시각화로 보�
         "오차": y_multi - y_hat_multi,
     }
 
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "3D 산점도 (x1, x2, y)",
         "x1 vs y / y_hat",
         "x2 vs y / y_hat",
-        "실제 y vs 예측 y_hat"
+        "실제 y vs 예측 y_hat",
+        "w₁–w₂ 평면에서 MSE 히트맵"
     ])
 
+    # 3D 산점도
     with tab1:
         fig3d = px.scatter_3d(
             df_multi,
@@ -206,8 +211,10 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 여러 시각화로 보�
             color="오차",
             title="다변수 회귀: 데이터 (점)와 오차 색상"
         )
+        fig3d.update_traces(marker=dict(size=3))  # 점 크기 줄이기
         st.plotly_chart(fig3d, use_container_width=True)
 
+    # x1 vs y / y_hat
     with tab2:
         fig_x1 = px.scatter(
             x=x1,
@@ -216,8 +223,10 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 여러 시각화로 보�
             title="x1 vs y, y_hat"
         )
         fig_x1.add_scatter(x=x1, y=y_hat_multi, mode="markers", name="예측 y_hat")
+        fig_x1.update_traces(marker=dict(size=5))
         st.plotly_chart(fig_x1, use_container_width=True)
 
+    # x2 vs y / y_hat
     with tab3:
         fig_x2 = px.scatter(
             x=x2,
@@ -226,8 +235,10 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 여러 시각화로 보�
             title="x2 vs y, y_hat"
         )
         fig_x2.add_scatter(x=x2, y=y_hat_multi, mode="markers", name="예측 y_hat")
+        fig_x2.update_traces(marker=dict(size=5))
         st.plotly_chart(fig_x2, use_container_width=True)
 
+    # 실제 y vs 예측 y_hat
     with tab4:
         fig_pred = px.scatter(
             x=y_multi,
@@ -235,7 +246,41 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 여러 시각화로 보�
             labels={"x": "실제 y", "y": "예측 y_hat"},
             title="실제값 vs 예측값"
         )
+        fig_pred.update_traces(marker=dict(size=5))
         st.plotly_chart(fig_pred, use_container_width=True)
+
+    # w1–w2 평면에서 MSE 히트맵
+    with tab5:
+        # w1, w2 grid 생성
+        w1_grid = np.linspace(0.0, 3.0, 40)
+        w2_grid = np.linspace(0.0, 2.0, 40)
+        W1, W2 = np.meshgrid(w1_grid, w2_grid, indexing="ij")
+
+        # (grid_w1, grid_w2)에 대한 MSE 계산 (b는 현재 b_mv로 고정)
+        # shape: (len(w1_grid), len(w2_grid), n)
+        preds = W1[..., None] * x1[None, None, :] + W2[..., None] * x2[None, None, :] + b_mv
+        mse_grid = np.mean((preds - y_multi[None, None, :]) ** 2, axis=-1)
+
+        fig_heat = px.imshow(
+            mse_grid,
+            x=w2_grid,
+            y=w1_grid,
+            origin="lower",
+            aspect="auto",
+            labels={"x": "w₂", "y": "w₁", "color": "MSE"},
+            title="w₁–w₂ 평면에서 MSE 히트맵 (b는 현재 값으로 고정)"
+        )
+
+        # 현재 (w1, w2) 위치 표시
+        fig_heat.add_scatter(
+            x=[w2],
+            y=[w1],
+            mode="markers",
+            marker=dict(color="red", size=8),
+            name="현재 선택한 (w₁, w₂)"
+        )
+
+        st.plotly_chart(fig_heat, use_container_width=True)
 
     st.caption("➡ 여러 변수와 계수가 있어도, 여전히 하는 일은 **w₁, w₂, b를 잘 골라 오차를 줄이는 것**입니다.")
 
@@ -263,8 +308,7 @@ In fact, 위 내용을 한 문장으로 정리하면 이렇게 말할 수 있습
 복잡한 AI 모델(딥러닝)도, 결국 이 네 줄 안에서 벗어나지 않습니다.
 """)
 
-with st.expander("힌트 보기 (000에 들어갈 말)", expanded=False):
-    st.markdown("**예시**:  \n\n> 어떤 모양의 함수이든, **오차(손실)**를 줄이기 위해 그 함수의 **계수(파라미터)** 를 조절하는 과정.")
+st.info("💬 000에 들어갈 말을 학생이 스스로 채워보게 해도 좋습니다.  \n\n예: **'오차(손실)'를 줄이기 위해 '계수(파라미터)'를 조절하는 과정**")
 
 st.markdown("---")
 
