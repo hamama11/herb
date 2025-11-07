@@ -6,11 +6,9 @@ import plotly.graph_objects as go  # 3D 회귀면에 필요
 
 st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wide")
 
-# 🔹 제목/이미지 부분 수정
+# 🔹 제목/이미지
 st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
-
-# width 또는 use_container_width 중 하나만 사용
-st.image("assets/회귀.png", width=800)
+st.image("assets/회귀.png", width=200)
 st.markdown("---")
 
 st.markdown("""
@@ -142,8 +140,12 @@ with st.expander("👉 2차식 계수를 조절해 보기", expanded=False):
             labels={"x": "x", "y": "y"},
             title="Step 2: 포물선 데이터 vs 2차식 모델"
         )
-        fig2.add_scatter(x=np.sort(x2_data), y=y2_hat[np.argsort(x2_data)],
-                         mode="lines", name="2차식 예측 곡선")
+        fig2.add_scatter(
+            x=np.sort(x2_data),
+            y=y2_hat[np.argsort(x2_data)],
+            mode="lines",
+            name="2차식 예측 곡선"
+        )
         fig2.update_traces(marker=dict(size=6))
         fig2.update_layout(height=400)
         st.plotly_chart(fig2, use_container_width=True)
@@ -256,7 +258,7 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
                 z=y4_data,
                 mode="markers",
                 marker=dict(size=3, color="royalblue", opacity=0.8),
-                name="데이터"
+                name="실제 데이터"
             )
 
             fig_plane.add_surface(
@@ -265,7 +267,7 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
                 z=GY,
                 colorscale="RdBu",
                 opacity=0.5,
-                name="회귀면"
+                name="회귀면 (예측값)"
             )
 
             fig_plane.update_layout(
@@ -279,8 +281,17 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             )
             st.plotly_chart(fig_plane, use_container_width=True)
 
+            st.markdown("""
+**그래프 읽는 법**
+
+- 🔵 **파란 점**: 실제로 관측된 데이터 $(x1, x2, y)$  
+- 색이 있는 **면(평면)**: 현재 슬라이더에서 선택한 $(w₁, w₂, b)$로 계산한 예측값 $\\hat{y} = p(x_1, x_2)$  
+- 면이 점 구름을 **잘 가로지르면 → 예측이 잘 맞는 상태**,  
+  면이 점들과 멀리 떨어져 있으면 → **오차가 큰 상태**입니다.
+""")
+
         with col_table:
-            st.markdown("**데이터 표**")
+            st.markdown("**데이터 표 (실제값/예측값/오차)**")
             st.dataframe(df_step4_view, use_container_width=True, height=480)
 
     # 🔸 w1–w2–MSE 히트맵
@@ -311,14 +322,22 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             x=[w2],
             y=[w1],
             mode="markers",
-            marker=dict(color="red", size=10, symbol="x"),
+            marker=dict(color="blue", size=10, symbol="x"),
             name="현재 선택한 (w₁, w₂)"
         )
 
         fig_heat.update_layout(height=450)
         st.plotly_chart(fig_heat, use_container_width=True)
 
-        st.caption("🔴 빨간 X = 지금 슬라이더로 선택한 (w₁, w₂) 위치. 주변 색이 어두울수록 MSE가 작아지는(=더 좋은) 구역입니다.")
+        st.markdown("""
+**히트맵 읽는 법**
+
+- 배경 색: **MSE(오차)의 크기**  
+  - 연한 노랑 → 상대적으로 **작은 오차**  
+  - 진한 주황·빨강 → **큰 오차**  
+- 🔵 파란 X 표시: 지금 슬라이더로 선택한 **현재 (w₁, w₂)** 위치  
+- 파란 X가 **노란 영역에 가까울수록 → 현재 설정이 “오차가 작은” 좋은 조합**입니다.
+""")
 
     # 🔸 실제 vs 예측 (최적화 관점)
     with tab3:
@@ -327,6 +346,7 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
         y_min = min(y4_data.min(), y4_hat.min())
         y_max = max(y4_data.max(), y4_hat.max())
 
+        # 이상적 상황: y = x
         fig_pred.add_trace(go.Scatter(
             x=[y_min, y_max],
             y=[y_min, y_max],
@@ -335,6 +355,7 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             name="완벽한 예측선 (y = x)"
         ))
 
+        # 실제 vs 예측 점
         fig_pred.add_trace(go.Scatter(
             x=y4_data,
             y=y4_hat,
@@ -352,7 +373,16 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
 
         st.plotly_chart(fig_pred, use_container_width=True)
 
-        st.caption("➡ 점들이 y = x 선에 더 가까워질수록, 우리가 조절한 (w₁, w₂, b)가 ‘좋은 선택’이 된 것입니다.")
+        st.markdown("""
+**그래프 읽는 법**
+
+- 점 하나 = 한 데이터의 (실제값, 예측값) 쌍  
+- 회색 점선 **y = x**: “예측 = 실제”가 되는 이상적인 상태  
+- 점들이 y = x 선 위/근처에 몰릴수록  
+  👉 우리가 선택한 $(w₁, w₂, b)$가 **데이터를 잘 설명하고 있다**는 뜻입니다.
+""")
+
+    st.caption("➡ 여러 변수와 계수가 있어도, 여전히 하는 일은 **w₁, w₂, b를 잘 골라 오차를 줄이는 것**입니다.")
 
 st.markdown("---")
 
