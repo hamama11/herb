@@ -4,12 +4,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go  # 3D 회귀면, 손실곡면에 필요
 
+    st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
 
 col1, col2 = st.columns([1, 2])
 with col1:
     st.image("assets/회귀.png", use_container_width=True)
-with col2:
-    st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
+
+
 st.markdown("---")
 
 st.markdown("""
