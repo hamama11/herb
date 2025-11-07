@@ -11,12 +11,12 @@ top_col1, top_col2 = st.columns([1, 2])
 with top_col1:
     st.image("assets/회귀.png", use_container_width=True)
 
-    st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
+st.title("🎯회귀했더니 ~ ~ ~ ~")
 
 st.markdown("---")
 
 st.markdown("""
-## 회귀 함수  
+## 미래를 예측한다? That is 회귀 함수  
 ### 복잡해 보여도 **회귀모델의 핵심 과정은 동일합니다.**  
 
 > 📌 _오차가 최소가 되도록 모델의 **계수(parameter)** 를 조절하는 것_
