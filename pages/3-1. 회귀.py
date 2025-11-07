@@ -8,7 +8,7 @@ st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wid
 
 # 🔹 제목/이미지
 st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
-st.image("assets/회귀.png", width=200)
+st.image("assets/회귀.png", width=600)
 st.markdown("---")
 
 st.markdown("""
