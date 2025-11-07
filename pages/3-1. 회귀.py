@@ -4,13 +4,14 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go  # 3D 회귀면, 손실곡면에 필요
 
- 
-col1, col2 = st.columns([1, 1])  # 절반씩 나누기
-with col1:
-    st.image("assets/회귀.png", use_container_width=True)
+st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wide")
 
-# 🔹 제목/이미지
-st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
+# 🔹 상단 레이아웃: 이미지 + 제목
+top_col1, top_col2 = st.columns([1, 2])
+with top_col1:
+    st.image("assets/회귀.png", use_container_width=True)
+with top_col2:
+    st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
 
 st.markdown("---")
 
@@ -232,7 +233,7 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라
 
     # 현재 파라미터에서의 예측과 MSE
     y4_hat = w1 * x4_1 + w2 * x4_2 + b4
-    mse4 = np.mean((y4_data - y4_hat) ** 2)
+    mse4 = float(np.mean((y4_data - y4_hat) ** 2))
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse4:.3f}**")
 
     df_step4_view = df_step4.copy()
@@ -277,7 +278,7 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라
                 name="실제 데이터"
             )
 
-            # ✅ 회귀면 색변화 제거: 단색(연한 회색) 평면으로 표현
+            # 회귀면: 단색(연한 회색) 평면
             fig_plane.add_surface(
                 x=GX1,
                 y=GX2,
@@ -352,8 +353,8 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라
     with tab3:
         fig_pred = go.Figure()
 
-        y_min = min(y4_data.min(), y4_hat.min())
-        y_max = max(y4_data.max(), y4_hat.max())
+        y_min = min(float(y4_data.min()), float(y4_hat.min()))
+        y_max = max(float(y4_data.max()), float(y4_hat.max()))
 
         # 이상적 상황: y = x
         fig_pred.add_trace(go.Scatter(
@@ -391,69 +392,70 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라
   👉 우리가 선택한 $(w₁, w₂, b)$가 **데이터를 잘 맞추는 상태**입니다.
 """)
 
- # 🔸 손실곡면 3D (파라미터 공간 3D)
-with tab4:
-    col_fig, col_table = st.columns([2, 1])  # 왼쪽 그래프, 오른쪽 표
+    # 🔸 손실곡면 3D (파라미터 공간 3D) + 표
+    with tab4:
+        col_fig, col_table = st.columns([2, 1])
 
-    with col_fig:
-        fig_loss = go.Figure()
+        with col_fig:
+            fig_loss = go.Figure()
 
-        # ✅ 손실함수 곡면 색을 파스텔 톤으로 (YlGnBu)
-        fig_loss.add_surface(
-            x=w1_grid,
-            y=w2_grid,
-            z=mse_grid,
-            colorscale="YlGnBu",
-            opacity=0.9,
-            name="손실곡면 L(w₁, w₂)"
-        )
+            fig_loss.add_surface(
+                x=w1_grid,
+                y=w2_grid,
+                z=mse_grid,
+                colorscale="YlGnBu",   # 파스텔 톤
+                opacity=0.9,
+                name="손실곡면 L(w₁, w₂)"
+            )
 
-        fig_loss.add_scatter3d(
-            x=[w1],
-            y=[w2],
-            z=[mse4],
-            mode="markers",
-            marker=dict(size=6, color="red"),
-            name="현재 파라미터 (w₁, w₂)"
-        )
+            fig_loss.add_scatter3d(
+                x=[w1],
+                y=[w2],
+                z=[mse4],
+                mode="markers",
+                marker=dict(size=6, color="red"),
+                name="현재 파라미터 (w₁, w₂)"
+            )
 
-        fig_loss.update_layout(
-            title="손실함수 곡면 L(w₁, w₂) (파라미터 공간)",
-            scene=dict(
-                xaxis_title="w₁",
-                yaxis_title="w₂",
-                zaxis_title="MSE",
-            ),
-            height=500,
-        )
+            fig_loss.update_layout(
+                title="손실함수 곡면 L(w₁, w₂) (파라미터 공간)",
+                scene=dict(
+                    xaxis_title="w₁",
+                    yaxis_title="w₂",
+                    zaxis_title="MSE",
+                ),
+                height=500,
+            )
 
-        st.plotly_chart(fig_loss, use_container_width=True)
+            st.plotly_chart(fig_loss, use_container_width=True)
 
-    with col_table:
-        # 🔹 파라미터 조합별 MSE를 표로 정리
-        mse_table = pd.DataFrame({
-            "파라미터": ["w₁", "w₂", "b", "MSE"],
-            "현재 값": [round(w1, 3), round(w2, 3), round(b4, 3), round(mse4, 4)]
-        })
-        st.markdown("**현재 선택한 파라미터 요약**")
-        st.dataframe(mse_table, use_container_width=True, height=180)
+        with col_table:
+            st.markdown("**현재 선택한 파라미터 요약**")
+            mse_table = pd.DataFrame({
+                "파라미터": ["w₁", "w₂", "b", "MSE"],
+                "현재 값": [round(float(w1), 3),
+                         round(float(w2), 3),
+                         round(float(b4), 3),
+                         round(float(mse4), 4)]
+            })
+            st.dataframe(mse_table, use_container_width=True, height=150)
 
-        # 🔹 주변 최소 MSE 위치와 비교도 표시 (참고용)
-        min_idx = np.unravel_index(np.argmin(mse_grid), mse_grid.shape)
-        best_w1, best_w2 = w1_grid[min_idx[0]], w2_grid[min_idx[1]]
-        best_mse = mse_grid[min_idx]
+            # 그리드 상의 최소 MSE 위치 계산
+            min_idx = np.unravel_index(np.argmin(mse_grid), mse_grid.shape)
+            best_w1 = float(w1_grid[min_idx[0]])
+            best_w2 = float(w2_grid[min_idx[1]])
+            best_mse = float(mse_grid[min_idx])
 
-        compare_table = pd.DataFrame({
-            "항목": ["현재 MSE", "최소 MSE"],
-            "값": [round(mse4, 4), round(float(best_mse), 4)],
-            "w₁": [round(w1, 2), round(best_w1, 2)],
-            "w₂": [round(w2, 2), round(best_w2, 2)]
-        })
+            st.markdown("**현재 MSE vs 최소 MSE (그리드 기준)**")
+            compare_table = pd.DataFrame({
+                "항목": ["현재 값", "그리드 상 최소값"],
+                "MSE": [round(mse4, 4), round(best_mse, 4)],
+                "w₁": [round(w1, 3), round(best_w1, 3)],
+                "w₂": [round(w2, 3), round(best_w2, 3)],
+            })
+            st.dataframe(compare_table, use_container_width=True, height=180)
 
-        st.markdown("**현재 MSE vs 최소 MSE 비교**")
-        st.dataframe(compare_table, use_container_width=True, height=200)
-
-    st.markdown("""
+        st.markdown("""
 **손실곡면(파라미터 공간 3D) 읽는 법**
 
 - 축: 가로 = $w_1$, 세로 = $w_2$, 세로축(z) = MSE  
@@ -461,16 +463,12 @@ with tab4:
   - 낮은 지점(바닥) → 오차가 가장 작은 **최적의 파라미터**  
   - 높은 지점 → 오차가 큰 상태  
 - 🔴 빨간 점: 지금 슬라이더에서 선택한 **현재 (w₁, w₂)**와 그때의 MSE 값  
+- 오른쪽 표:  
+  - 현재 $(w₁, w₂, b)$와 그때의 MSE  
+  - 그리드 상에서 찾은 **최소 MSE 지점과 비교**  
 
-👉 오른쪽 표에는 현재 파라미터 값과 오차,  
-그리고 그리드 상에서의 **최소 MSE 지점**이 함께 표시됩니다.  
-이 두 수치를 비교하면서 **최적화의 목표가 얼마나 가까운지** 볼 수 있습니다.
-""")
-
-
-즉,  
-> _“계수를 조절한다” = 손실곡면 위에서 **더 낮은 곳(오차가 적은 곳)**으로 이동한다_  
-는 뜻입니다.
+👉 슬라이더를 움직이며, **빨간 점이 바닥 쪽으로 갈수록**  
+   오른쪽 표에서 **현재 MSE가 최소 MSE에 가까워지는지** 같이 보세요.
 """)
 
     st.caption("➡ 네 개의 탭은 서로 연결되어 있습니다. 같은 (w₁, w₂, b)가 데이터공간의 회귀면·오차·손실곡면을 동시에 바꿉니다.")
