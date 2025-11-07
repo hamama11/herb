@@ -2,13 +2,13 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go  # 3D 회귀면에 필요
+import plotly.graph_objects as go  # 3D 회귀면, 손실곡면에 필요
 
 st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wide")
 
 # 🔹 제목/이미지
 st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
-st.image("assets/회귀.png", width=600)
+st.image("assets/회귀.png", width=200)
 st.markdown("---")
 
 st.markdown("""
@@ -204,9 +204,9 @@ with st.expander("👉 a, b를 조절해 비선형 곡선을 맞춰 보기", exp
 st.markdown("---")
 
 # =========================
-# Step 4. 다변수 회귀 (x1, x2 → y)
+# Step 4. 다변수 회귀 (x1, x2 → y) + 손실곡면
 # =========================
-st.header("🔹 Step 4. 다변수 회귀 (Multiple Regression)")
+st.header("🔹 Step 4. 다변수 회귀 & 손실함수 (Multiple Regression & Loss Surface)")
 
 st.markdown("""
 이번에는 입력 변수가 **두 개(x1, x2)**인 상황입니다.
@@ -218,7 +218,7 @@ st.markdown("""
   파라미터 벡터 $(w_1, w_2, b)$를 동시에 조절합니다.
 """)
 
-with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 시각화", expanded=False):
+with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라미터공간 동시에 보기", expanded=False):
     col_ctrl = st.columns(3)
     with col_ctrl[0]:
         w1 = st.slider("w₁ (x1 계수)", -1.0, 3.0, 1.2, 0.1)
@@ -227,6 +227,7 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
     with col_ctrl[2]:
         b4 = st.slider("b (절편)", 0.0, 10.0, 5.0, 0.1)
 
+    # 현재 파라미터에서의 예측과 MSE
     y4_hat = w1 * x4_1 + w2 * x4_2 + b4
     mse4 = np.mean((y4_data - y4_hat) ** 2)
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse4:.3f}**")
@@ -235,13 +236,25 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
     df_step4_view["y_hat"] = y4_hat
     df_step4_view["오차"] = df_step4_view["y"] - df_step4_view["y_hat"]
 
-    tab1, tab2, tab3 = st.tabs([
+    # 손실곡면과 히트맵에 쓸 (w1, w2) 그리드와 MSE 계산 (파라미터 공간)
+    w1_grid = np.linspace(-1.0, 3.0, 50)
+    w2_grid = np.linspace(-2.0, 2.0, 50)
+    W1, W2 = np.meshgrid(w1_grid, w2_grid, indexing="ij")
+    preds_grid = (
+        W1[..., None] * x4_1[None, None, :]
+        + W2[..., None] * x4_2[None, None, :]
+        + b4
+    )
+    mse_grid = np.mean((preds_grid - y4_data[None, None, :]) ** 2, axis=-1)
+
+    tab1, tab2, tab3, tab4 = st.tabs([
         "3D 회귀면 + 데이터점 + 표",
         "w₁–w₂–MSE 히트맵",
-        "실제값 vs 예측값 (최적화 관점)"
+        "실제값 vs 예측값 (y=x 기준)",
+        "손실곡면 (파라미터 공간)"
     ])
 
-    # 🔸 3D 회귀면 + 표
+    # 🔸 3D 회귀면 + 표 (데이터 공간)
     with tab1:
         col_fig, col_table = st.columns([2, 1])
 
@@ -267,11 +280,12 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
                 z=GY,
                 colorscale="RdBu",
                 opacity=0.5,
-                name="회귀면 (예측값)"
+                name="회귀면 (예측값)",
+                colorbar=dict(title="예측 y 값")
             )
 
             fig_plane.update_layout(
-                title="Step 4: 다변수 데이터와 회귀면",
+                title="Step 4: 다변수 데이터와 회귀면 (데이터 공간)",
                 scene=dict(
                     xaxis_title="x1",
                     yaxis_title="x2",
@@ -282,31 +296,22 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             st.plotly_chart(fig_plane, use_container_width=True)
 
             st.markdown("""
-**그래프 읽는 법**
+**그래프(데이터 공간) 읽는 법**
 
-- 🔵 **파란 점**: 실제로 관측된 데이터 $(x1, x2, y)$  
-- 색이 있는 **면(평면)**: 현재 슬라이더에서 선택한 $(w₁, w₂, b)$로 계산한 예측값 $\\hat{y} = p(x_1, x_2)$  
-- 면이 점 구름을 **잘 가로지르면 → 예측이 잘 맞는 상태**,  
+- 🔵 **파란 점**: 실제로 관측된 데이터 $(x_1, x_2, y)$  
+- 🟥🟦 **색이 있는 면(회귀면)**: 슬라이더에서 선택한 $(w₁, w₂, b)$로 계산한 예측값 $\\hat{y} = p(x_1, x_2)$  
+  - 빨간색 쪽 → 예측된 $\\hat{y}$ 값이 **크다**  
+  - 파란색 쪽 → 예측된 $\\hat{y}$ 값이 **작다**  
+- 면이 점 구름을 **잘 가로지르면 → 예측이 실제와 비슷한 상태**,  
   면이 점들과 멀리 떨어져 있으면 → **오차가 큰 상태**입니다.
 """)
 
         with col_table:
-            st.markdown("**데이터 표 (실제값/예측값/오차)**")
+            st.markdown("**데이터 표 (실제값 / 예측값 / 오차)**")
             st.dataframe(df_step4_view, use_container_width=True, height=480)
 
-    # 🔸 w1–w2–MSE 히트맵
+    # 🔸 w1–w2–MSE 히트맵 (파라미터 공간 2D)
     with tab2:
-        w1_grid = np.linspace(-1.0, 3.0, 50)
-        w2_grid = np.linspace(-2.0, 2.0, 50)
-        W1, W2 = np.meshgrid(w1_grid, w2_grid, indexing="ij")
-
-        preds = (
-            W1[..., None] * x4_1[None, None, :]
-            + W2[..., None] * x4_2[None, None, :]
-            + b4
-        )
-        mse_grid = np.mean((preds - y4_data[None, None, :]) ** 2, axis=-1)
-
         fig_heat = px.imshow(
             mse_grid,
             x=w2_grid,
@@ -330,16 +335,17 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
         st.plotly_chart(fig_heat, use_container_width=True)
 
         st.markdown("""
-**히트맵 읽는 법**
+**히트맵(파라미터 평면) 읽는 법**
 
-- 배경 색: **MSE(오차)의 크기**  
+- 축: 가로 = $w_2$, 세로 = $w_1$  
+- 배경 색: **MSE(평균제곱오차)의 크기**  
   - 연한 노랑 → 상대적으로 **작은 오차**  
   - 진한 주황·빨강 → **큰 오차**  
-- 🔵 파란 X 표시: 지금 슬라이더로 선택한 **현재 (w₁, w₂)** 위치  
-- 파란 X가 **노란 영역에 가까울수록 → 현재 설정이 “오차가 작은” 좋은 조합**입니다.
+- 🔵 파란 X: 지금 슬라이더로 선택한 **현재 (w₁, w₂)** 위치  
+- 파란 X가 **노란 영역에 가까울수록 → 현재 파라미터가 “오차가 작은 좋은 조합”**입니다.
 """)
 
-    # 🔸 실제 vs 예측 (최적화 관점)
+    # 🔸 실제 vs 예측 (y=x 기준선)
     with tab3:
         fig_pred = go.Figure()
 
@@ -374,15 +380,66 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
         st.plotly_chart(fig_pred, use_container_width=True)
 
         st.markdown("""
-**그래프 읽는 법**
+**그래프(실제 vs 예측) 읽는 법**
 
-- 점 하나 = 한 데이터의 (실제값, 예측값) 쌍  
-- 회색 점선 **y = x**: “예측 = 실제”가 되는 이상적인 상태  
+- 점 하나 = 한 데이터의 (실제값 y, 예측값 $\\hat{y}$) 쌍  
+- 회색 점선 **y = x**: “예측 = 실제”가 되는 이상적인 선  
 - 점들이 y = x 선 위/근처에 몰릴수록  
-  👉 우리가 선택한 $(w₁, w₂, b)$가 **데이터를 잘 설명하고 있다**는 뜻입니다.
+  👉 우리가 선택한 $(w₁, w₂, b)$가 **데이터를 잘 맞추는 상태**입니다.
 """)
 
-    st.caption("➡ 여러 변수와 계수가 있어도, 여전히 하는 일은 **w₁, w₂, b를 잘 골라 오차를 줄이는 것**입니다.")
+    # 🔸 손실곡면 3D (파라미터 공간 3D)
+    with tab4:
+        fig_loss = go.Figure()
+
+        fig_loss.add_surface(
+            x=w1_grid,
+            y=w2_grid,
+            z=mse_grid,
+            colorscale="Viridis",
+            opacity=0.9,
+            name="손실곡면 L(w₁, w₂)"
+        )
+
+        fig_loss.add_scatter3d(
+            x=[w1],
+            y=[w2],
+            z=[mse4],
+            mode="markers",
+            marker=dict(size=6, color="red"),
+            name="현재 파라미터 (w₁, w₂)"
+        )
+
+        fig_loss.update_layout(
+            title="손실함수 곡면 L(w₁, w₂) (파라미터 공간)",
+            scene=dict(
+                xaxis_title="w₁",
+                yaxis_title="w₂",
+                zaxis_title="MSE",
+            ),
+            height=500,
+        )
+
+        st.plotly_chart(fig_loss, use_container_width=True)
+
+        st.markdown("""
+**손실곡면(파라미터 공간 3D) 읽는 법**
+
+- 축: 가로 = $w_1$, 세로 = $w_2$, 세로축(z) = MSE  
+- 그릇 모양(오목한 형태):  
+  - 가운데 바닥쪽 → **오차가 가장 작은 부분(최적의 파라미터)**  
+  - 가장자리 위쪽 → **오차가 큰 부분**  
+- 🔴 빨간 점: 지금 슬라이더에서 선택한 **현재 (w₁, w₂)**와 그때의 MSE 값  
+
+👉 **데이터 공간에서는** 회귀면이 점들을 잘 통과하도록 기울어지고,  
+👉 **파라미터 공간에서는** 빨간 점이 이 그릇의 바닥 쪽으로 이동합니다.
+
+즉,  
+> _“계수를 조절한다” = 손실곡면 위에서 **더 낮은 곳(오차가 적은 곳)**으로 이동한다_  
+는 뜻입니다.
+""")
+
+    st.caption("➡ 네 개의 탭은 서로 연결되어 있습니다. 같은 (w₁, w₂, b)가 데이터공간의 회귀면·오차·손실곡면을 동시에 바꿉니다.")
 
 st.markdown("---")
 
