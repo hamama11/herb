@@ -4,7 +4,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go  # 3D 회귀면, 손실곡면에 필요
 
-st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wide")
+col1, col2 = st.columns([1, 1])  # 절반씩 나누기
+with col1:
+    st.image("assets/회귀.png", use_container_width=True)
 
 # 🔹 제목/이미지
 st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
