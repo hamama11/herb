@@ -10,7 +10,7 @@ st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wid
 top_col1, top_col2 = st.columns([1, 2])
 with top_col1:
     st.image("assets/회귀.png", use_container_width=True)
-with top_col2:
+
     st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
 
 st.markdown("---")
