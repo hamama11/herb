@@ -4,20 +4,23 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go  # 3D 회귀면에 필요
 
-st.title("🎯 미래를 예측한다?
-회귀했더니 ~ ~ ~ ~")
+st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wide")
 
-st.image("assets/회귀.png", use_container_width=200)
+# 🔹 제목/이미지 부분 수정
+st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
+
+# width 또는 use_container_width 중 하나만 사용
+st.image("assets/회귀.png", width=200)
 st.markdown("---")
 
 st.markdown("""
-## 회귀 함수,  
+## 회귀 함수  
 ### 복잡해 보여도 **회귀모델의 핵심 과정은 동일합니다.**  
 
 > 📌 _오차가 최소가 되도록 모델의 **계수(parameter)** 를 조절하는 것_
 
 아래 STEP을 **직접 조작**해 보면서  
-“ 예측값과 실제 값”을 관찰해 봅시다.
+“예측값과 실제 값”을 관찰해 봅시다.
 """)
 
 # =========================
@@ -204,7 +207,7 @@ st.markdown("---")
 st.header("🔹 Step 4. 다변수 회귀 (Multiple Regression)")
 
 st.markdown("""
-이번에는 입력 변수가 **두 개(x1, x2)** 인 상황입니다.
+이번에는 입력 변수가 **두 개(x1, x2)**인 상황입니다.
 
 모델:  $p(x_1, x_2) = w_1 x_1 + w_2 x_2 + b$
 
@@ -324,7 +327,6 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
         y_min = min(y4_data.min(), y4_hat.min())
         y_max = max(y4_data.max(), y4_hat.max())
 
-        # 이상적 상황: y = x
         fig_pred.add_trace(go.Scatter(
             x=[y_min, y_max],
             y=[y_min, y_max],
@@ -333,7 +335,6 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 회귀면과 오차를 �
             name="완벽한 예측선 (y = x)"
         ))
 
-        # 실제 vs 예측 점
         fig_pred.add_trace(go.Scatter(
             x=y4_data,
             y=y4_hat,
@@ -375,7 +376,7 @@ st.markdown("""
 3. **계수 조절**:  $L(\\theta)$가 줄어들도록 $\\theta$를 계속 바꿔본다.  
 4. **멈추기**:  더 이상 눈에 띄게 줄지 않을 때, 그때의 $\\theta$를 "최적"이라고 부른다.
 
-복잡한 AI 모델(딥러닝)도, 결국 이 네 줄 안에서 벗어나지 않습니다.
+복잡한 AI 모델(딥러닝)도, 결국 이 네 줄 안에서 벗어나지 않습니다.  
 우리의 삶은 어떨까요?
 """)
 
