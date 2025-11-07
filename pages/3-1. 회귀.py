@@ -8,7 +8,7 @@ st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wid
 
 # 🔹 제목/이미지
 st.title("🎯 미래를 예측한다? 회귀했더니 ~ ~ ~ ~")
-st.image("assets/회귀.png", width= 600)
+st.image("assets/회귀.png", width=200)
 st.markdown("---")
 
 st.markdown("""
@@ -274,14 +274,16 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라
                 name="실제 데이터"
             )
 
+            # ✅ 회귀면 색변화 제거: 단색(연한 회색) 평면으로 표현
             fig_plane.add_surface(
                 x=GX1,
                 y=GX2,
                 z=GY,
-                colorscale="RdBu",
-                opacity=0.5,
-                name="회귀면 (예측값)",
-                colorbar=dict(title="예측 y 값")
+                surfacecolor=np.zeros_like(GY),
+                colorscale=[[0, "lightgray"], [1, "lightgray"]],
+                showscale=False,
+                opacity=0.6,
+                name="회귀면 (예측값)"
             )
 
             fig_plane.update_layout(
@@ -298,12 +300,10 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라
             st.markdown("""
 **그래프(데이터 공간) 읽는 법**
 
-- 🔵 **파란 점**: 실제로 관측된 데이터 $(x_1, x_2, y)$  
-- 🟥🟦 **색이 있는 면(회귀면)**: 슬라이더에서 선택한 $(w₁, w₂, b)$로 계산한 예측값 $\\hat{y} = p(x_1, x_2)$  
-  - 빨간색 쪽 → 예측된 $\\hat{y}$ 값이 **크다**  
-  - 파란색 쪽 → 예측된 $\\hat{y}$ 값이 **작다**  
-- 면이 점 구름을 **잘 가로지르면 → 예측이 실제와 비슷한 상태**,  
-  면이 점들과 멀리 떨어져 있으면 → **오차가 큰 상태**입니다.
+- 🔵 파란 점: 실제로 관측된 데이터 $(x_1, x_2, y)$  
+- 회색 평면: 슬라이더에서 선택한 $(w₁, w₂, b)$로 계산한 예측값 $\\hat{y} = p(x_1, x_2)$  
+- 평면이 점 구름을 **잘 가로지르면 → 예측이 실제와 비슷한 상태**,  
+  평면이 점들과 멀리 떨어져 있으면 → **오차가 큰 상태**입니다.
 """)
 
         with col_table:
@@ -392,11 +392,12 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라
     with tab4:
         fig_loss = go.Figure()
 
+        # ✅ 손실함수 곡면 색을 파스텔 톤으로 (YlGnBu)
         fig_loss.add_surface(
             x=w1_grid,
             y=w2_grid,
             z=mse_grid,
-            colorscale="Viridis",
+            colorscale="YlGnBu",
             opacity=0.9,
             name="손실곡면 L(w₁, w₂)"
         )
@@ -426,12 +427,12 @@ with st.expander("👉 w₁, w₂, b를 조절하면서 데이터공간 & 파라
 **손실곡면(파라미터 공간 3D) 읽는 법**
 
 - 축: 가로 = $w_1$, 세로 = $w_2$, 세로축(z) = MSE  
-- 그릇 모양(오목한 형태):  
-  - 가운데 바닥쪽 → **오차가 가장 작은 부분(최적의 파라미터)**  
-  - 가장자리 위쪽 → **오차가 큰 부분**  
+- 파스텔 톤 곡면: **각 파라미터 조합에서의 오차 크기**  
+  - 낮은 지점(바닥) → 오차가 가장 작은 **최적의 파라미터**  
+  - 높은 지점 → 오차가 큰 상태  
 - 🔴 빨간 점: 지금 슬라이더에서 선택한 **현재 (w₁, w₂)**와 그때의 MSE 값  
 
-👉 **데이터 공간에서는** 회귀면이 점들을 잘 통과하도록 기울어지고,  
+👉 **데이터 공간에서는** 회귀평면이 점들을 더 잘 통과하도록 움직이고,  
 👉 **파라미터 공간에서는** 빨간 점이 이 그릇의 바닥 쪽으로 이동합니다.
 
 즉,  
