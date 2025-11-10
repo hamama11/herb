@@ -98,7 +98,7 @@ st.markdown(
 )
 
 with st.expander("👉 직선의 기울기와 절편을 직접 조절해 보기", expanded=True):
-    col_ctrl, col_dummy = st.columns([1, 2])  # 슬라이더는 좁게
+    col_ctrl, _ = st.columns([1, 2])  # 슬라이더는 좁게
     with col_ctrl:
         a = st.slider("기울기 a", -1.0, 4.0, 1.8, 0.1)
         b = st.slider("절편 b", -2.0, 8.0, 2.0, 0.1)
@@ -107,7 +107,12 @@ with st.expander("👉 직선의 기울기와 절편을 직접 조절해 보기"
     mse1 = np.mean((y1_data - y1_hat) ** 2)
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse1:.3f}**")
 
-    col_fig, col_table = st.columns([2, 1])
+    # ✅ 표 왼쪽, 그래프 오른쪽
+    col_table, col_fig = st.columns([1, 2])
+    with col_table:
+        st.markdown("**데이터 표**")
+        st.dataframe(df_step1, use_container_width=True, height=380)
+
     with col_fig:
         fig1 = px.scatter(
             x=x1_data,
@@ -119,9 +124,6 @@ with st.expander("👉 직선의 기울기와 절편을 직접 조절해 보기"
         fig1.update_traces(marker=dict(size=6))
         fig1.update_layout(height=400)
         st.plotly_chart(fig1, use_container_width=True)
-    with col_table:
-        st.markdown("**데이터 표**")
-        st.dataframe(df_step1, use_container_width=True, height=380)
 
     st.caption(
         "➡ 기울기와 절편을 바꾸면서, '오차가 가장 작아지는 조합'을 찾는 것이 바로 **최적화**입니다."
@@ -163,7 +165,12 @@ with st.expander("👉 2차식 계수를 조절해 보기", expanded=False):
     mse2 = np.mean((y2_data - y2_hat) ** 2)
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse2:.3f}**")
 
-    col_fig, col_table = st.columns([2, 1])
+    # ✅ 표 왼쪽, 그래프 오른쪽
+    col_table, col_fig = st.columns([1, 2])
+    with col_table:
+        st.markdown("**데이터 표**")
+        st.dataframe(df_step2, use_container_width=True, height=380)
+
     with col_fig:
         fig2 = px.scatter(
             x=x2_data,
@@ -180,9 +187,6 @@ with st.expander("👉 2차식 계수를 조절해 보기", expanded=False):
         fig2.update_traces(marker=dict(size=6))
         fig2.update_layout(height=400)
         st.plotly_chart(fig2, use_container_width=True)
-    with col_table:
-        st.markdown("**데이터 표**")
-        st.dataframe(df_step2, use_container_width=True, height=380)
 
     st.caption("➡ 직선을 쓰면 어색했던 데이터가, 2차식으로는 훨씬 잘 맞을 수 있습니다.")
 
@@ -221,7 +225,12 @@ with st.expander("👉 a, b를 조절해 비선형 곡선을 맞춰 보기", exp
     mse3 = np.mean((y3_data - y3_hat) ** 2)
     st.write(f"📉 현재 MSE(평균제곱오차): **{mse3:.3f}**")
 
-    col_fig, col_table = st.columns([2, 1])
+    # ✅ 표 왼쪽, 그래프 오른쪽
+    col_table, col_fig = st.columns([1, 2])
+    with col_table:
+        st.markdown("**데이터 표**")
+        st.dataframe(df_step3, use_container_width=True, height=380)
+
     with col_fig:
         fig3 = px.scatter(
             x=x3_data,
@@ -233,9 +242,6 @@ with st.expander("👉 a, b를 조절해 비선형 곡선을 맞춰 보기", exp
         fig3.update_traces(marker=dict(size=6))
         fig3.update_layout(height=400)
         st.plotly_chart(fig3, use_container_width=True)
-    with col_table:
-        st.markdown("**데이터 표**")
-        st.dataframe(df_step3, use_container_width=True, height=380)
 
     st.caption("➡ 수식 모양만 달라졌을 뿐, 여전히 **a, b를 조절해 오차를 줄이는 최적화 문제**입니다.")
 
@@ -305,7 +311,12 @@ with st.expander(
 
     # 🔸 3D 회귀면 + 표 (데이터 공간)
     with tab1:
-        col_fig, col_table = st.columns([2, 1])
+        # ✅ 여기서도 표 왼쪽, 그래프 오른쪽
+        col_table, col_fig = st.columns([1, 2])
+
+        with col_table:
+            st.markdown("**데이터 표 (실제값 / 예측값 / 오차)**")
+            st.dataframe(df_step4_view, use_container_width=True, height=480)
 
         with col_fig:
             grid_x1 = np.linspace(0, 5, 25)
@@ -357,11 +368,7 @@ with st.expander(
 """
             )
 
-        with col_table:
-            st.markdown("**데이터 표 (실제값 / 예측값 / 오차)**")
-            st.dataframe(df_step4_view, use_container_width=True, height=480)
-
-    # 🔸 w1–w2–MSE 히트맵 (파라미터 공간 2D)
+    # 🔸 w1–w2–MSE 히트맵 (파라미터 공간 2D) → 여긴 그래프만
     with tab2:
         fig_heat = px.imshow(
             mse_grid,
@@ -398,7 +405,7 @@ with st.expander(
 """
         )
 
-    # 🔸 실제 vs 예측 (y=x 기준선)
+    # 🔸 실제 vs 예측 (y=x 기준선) → 그래프만
     with tab3:
         fig_pred = go.Figure()
 
@@ -449,7 +456,8 @@ with st.expander(
 
     # 🔸 손실곡면 3D (파라미터 공간 3D) + 표
     with tab4:
-        col_fig, col_table = st.columns([2, 1])
+        # ✅ 표 왼쪽, 그래프 오른쪽
+        col_table, col_fig = st.columns([1, 2])
 
         with col_fig:
             fig_loss = go.Figure()
