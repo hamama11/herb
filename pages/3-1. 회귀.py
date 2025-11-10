@@ -7,8 +7,6 @@ import plotly.graph_objects as go  # 3D 회귀면, 손실곡면에 필요
 st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wide")
 
 # 🔹 상단 레이아웃: 이미지 + 제목
-top_col1, top_col2 = st.columns([1, 2])
-with top_col1:
     st.image("assets/회귀.png", use_container_width=True)
 
 st.title("🎯회귀했더니 ~ ~ ~ ~")
@@ -495,8 +493,9 @@ st.markdown("""
 3. **계수 조절**:  $L(\\theta)$가 줄어들도록 $\\theta$를 계속 바꿔본다.  
 4. **멈추기**:  더 이상 눈에 띄게 줄지 않을 때, 그때의 $\\theta$를 "최적"이라고 부른다.
 
-복잡한 AI 모델(딥러닝)도, 결국 이 네 줄 안에서 벗어나지 않습니다.  
-우리의 삶은 어떨까요?
+복잡한 Ai, 딥러닝도 또한 몇 줄의 간단한 원리에서 비롯되었느니라. 🧠
+그렇다면 사람의 삶 또한, 작고 순수한 마음 하나로 끝없이 피어날 수 있지 아니하겠는가. 🌱
+오늘이 곧 그 한 줄을 써 내려갈 날이니, 지금 이 순간, 함께 이야기를 써 내려가 보지 않겠는가? 🤝🔭
 """)
 
 st.markdown("---")
