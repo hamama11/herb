@@ -7,7 +7,7 @@ import plotly.graph_objects as go  # 3D 회귀면, 손실곡면에 필요
 st.set_page_config(page_title="회귀로 미래를 예측해보기", layout="wide")
 
 # 🔹 상단 레이아웃: 이미지 + 제목
-    st.image("assets/회귀.png", use_container_width=True)
+st.image("assets/회귀.png", use_container_width=True)
 
 st.title("🎯회귀했더니 ~ ~ ~ ~")
 
